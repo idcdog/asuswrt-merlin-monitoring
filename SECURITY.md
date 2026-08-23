@@ -24,4 +24,6 @@ The exporter uses the system OpenSSH client and does not disable host-key checki
 
 ## Reporting a vulnerability
 
-Open a GitHub security advisory for vulnerabilities. Do not publish credentials, private network inventories or real device identifiers in a public issue.
+Open a [private GitHub security advisory](https://github.com/idcdog/asuswrt-merlin-monitoring/security/advisories/new) for vulnerabilities. Do not publish credentials, private network inventories or real device identifiers in a public issue.
+
+Include the affected project version, component, impact, reproduction conditions, and a redacted proof of concept. The initial supported line is `0.1.x`; security fixes are released from the latest maintained version rather than backported to unpublished versions.

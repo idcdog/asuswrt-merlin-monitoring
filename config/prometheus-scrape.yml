@@ -23,20 +23,20 @@ scrape_configs:
 
   - job_name: snmp_exporter
     static_configs:
-      - targets: [127.0.0.1:9116]
+      - targets: ["127.0.0.1:9116"]
 
   - job_name: asus_wifi_clients
     scrape_interval: 30s
     scrape_timeout: 10s
     static_configs:
-      - targets: [127.0.0.1:9101]
+      - targets: ["127.0.0.1:9101"]
         labels:
           device: ASUS-Router
 
   - job_name: blackbox_exporter
     scrape_interval: 30s
     static_configs:
-      - targets: [127.0.0.1:9115]
+      - targets: ["127.0.0.1:9115"]
 
   - job_name: internet_https
     scrape_interval: 30s
@@ -45,7 +45,7 @@ scrape_configs:
     params:
       module: [http_2xx_ipv4]
     static_configs:
-      - targets: [https://www.baidu.com/]
+      - targets: ["https://www.baidu.com/"]
         labels:
           probe_name: Internet HTTPS
     relabel_configs:

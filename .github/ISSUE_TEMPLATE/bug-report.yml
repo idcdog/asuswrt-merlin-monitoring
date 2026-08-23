@@ -1,0 +1,72 @@
+name: Bug report
+description: Report a reproducible collector, dashboard, or installation problem
+title: "[Bug]: "
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Run `sudo ./scripts/preflight.sh` first. Remove SNMP communities, keys, tokens, real MAC addresses, device names, public IPs, and private network inventories from every attachment.
+  - type: dropdown
+    id: component
+    attributes:
+      label: Affected component
+      options:
+        - SSH exporter
+        - Traffic Analyzer importer
+        - SNMP collection
+        - Blackbox probes
+        - VictoriaMetrics scrape configuration
+        - Grafana dashboard
+        - Installation or systemd
+        - Device-name manager
+    validations:
+      required: true
+  - type: input
+    id: router
+    attributes:
+      label: Router model
+      placeholder: RT-BE88U
+    validations:
+      required: true
+  - type: input
+    id: firmware
+    attributes:
+      label: Firmware and version
+      placeholder: Asuswrt-Merlin 3006.102.8_4
+    validations:
+      required: true
+  - type: input
+    id: host
+    attributes:
+      label: Monitoring host
+      placeholder: CentOS Stream 10 x86_64, Python 3.12
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Reproduction steps
+      description: Include the exact command or dashboard action and the expected versus actual result.
+    validations:
+      required: true
+  - type: textarea
+    id: preflight
+    attributes:
+      label: Redacted preflight output
+      render: shell
+    validations:
+      required: true
+  - type: textarea
+    id: logs
+    attributes:
+      label: Redacted logs or query output
+      render: shell
+  - type: checkboxes
+    id: privacy
+    attributes:
+      label: Privacy confirmation
+      options:
+        - label: I removed credentials, SNMP communities, tokens, keys, real MAC addresses, device names, public IPs, and private network inventories.
+          required: true
+        - label: I reproduced this problem with the current project version.
+          required: true

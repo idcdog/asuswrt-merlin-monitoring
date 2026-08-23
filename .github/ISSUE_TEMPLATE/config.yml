@@ -1,0 +1,5 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Security vulnerability
+    url: https://github.com/idcdog/asuswrt-merlin-monitoring/security/advisories/new
+    about: Report vulnerabilities privately. Never place credentials or private network data in a public issue.

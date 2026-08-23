@@ -9,7 +9,23 @@ python3 -m py_compile src/asus_wifi_exporter.py src/asus_traffic_importer.py
 python3 src/asus_wifi_exporter.py --help >/dev/null
 python3 src/asus_traffic_importer.py --help >/dev/null
 python3 -m unittest discover -s tests -v
-bash -n scripts/install-host-components.sh scripts/validate.sh
+bash -n scripts/install-host-components.sh scripts/preflight.sh \
+  scripts/uninstall-host-components.sh scripts/validate.sh
+scripts/preflight.sh --help >/dev/null
+scripts/uninstall-host-components.sh --help >/dev/null
+
+if command -v shellcheck >/dev/null 2>&1; then
+  shellcheck scripts/*.sh
+else
+  echo "warning: shellcheck not installed; skipping shell lint" >&2
+fi
+
+if command -v ruby >/dev/null 2>&1; then
+  ruby -e 'require "yaml"; ARGV.each { |path| YAML.safe_load(File.read(path), permitted_classes: [], aliases: true) }' \
+    $(find . -type f \( -name '*.yml' -o -name '*.yaml' \) -not -path './.git/*' | sort)
+else
+  echo "warning: ruby not installed; skipping YAML parse validation" >&2
+fi
 
 python3 - <<'PY'
 import json
@@ -43,6 +59,23 @@ for path in Path("dashboards").glob("*.json"):
     required = {"router_ip", "wan_if", "management_url", "client"}
     if missing := required - variables:
         raise SystemExit(f"{path}: missing variables {sorted(missing)}")
+PY
+
+python3 - <<'PY'
+import re
+from pathlib import Path
+
+link_pattern = re.compile(r"!?\[[^\]]*\]\(([^)]+)\)")
+for markdown in Path(".").rglob("*.md"):
+    if ".git" in markdown.parts:
+        continue
+    for target in link_pattern.findall(markdown.read_text(encoding="utf-8")):
+        target = target.strip().strip("<>").split("#", 1)[0]
+        if not target or "://" in target or target.startswith(("mailto:", "/")):
+            continue
+        resolved = (markdown.parent / target).resolve()
+        if not resolved.exists():
+            raise SystemExit(f"{markdown}: broken local link: {target}")
 PY
 
 if rg -n -i \

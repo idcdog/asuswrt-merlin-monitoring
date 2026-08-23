@@ -1,5 +1,7 @@
 # 架构与数据流
 
+[English](architecture.en.md)
+
 本项目把实时状态、接口计数器和小时级历史流量分成三条采集链路。这样既能利用标准 SNMP，也能补足 Asuswrt 无法通过 SNMP 暴露的无线客户端和系统信息。
 
 ```text

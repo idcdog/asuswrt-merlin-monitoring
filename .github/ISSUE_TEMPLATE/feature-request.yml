@@ -1,0 +1,29 @@
+name: Feature request
+description: Propose a focused, generally useful improvement
+title: "[Feature]: "
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem to solve
+      description: Describe the operational or user problem, not only the desired implementation.
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed behavior
+    validations:
+      required: true
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives and compatibility impact
+      description: Mention new router commands, privileges, dependencies, metric labels, or dashboard changes.
+  - type: checkboxes
+    id: safety
+    attributes:
+      label: Safety
+      options:
+        - label: I described any new privilege, dependency, network exposure, or router-side behavior above.
+          required: true

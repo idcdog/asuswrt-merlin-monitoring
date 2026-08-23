@@ -1,5 +1,7 @@
 # 指标说明
 
+[English](metrics.en.md)
+
 ## 实时 SSH 指标
 
 主要指标由 `asus-wifi-exporter` 生成。完整名称可通过 `curl http://127.0.0.1:9101/metrics` 查看。

@@ -1,0 +1,50 @@
+name: Router compatibility report
+description: Report a tested router and firmware combination
+title: "[Compatibility]: "
+body:
+  - type: input
+    id: router
+    attributes:
+      label: Router model and hardware revision
+      placeholder: RT-BE88U, revision A1
+    validations:
+      required: true
+  - type: input
+    id: firmware
+    attributes:
+      label: Firmware
+      placeholder: Asuswrt-Merlin 3006.102.8_4
+    validations:
+      required: true
+  - type: input
+    id: host
+    attributes:
+      label: Monitoring host and architecture
+      placeholder: Debian 13 arm64
+    validations:
+      required: true
+  - type: checkboxes
+    id: features
+    attributes:
+      label: Tested paths
+      options:
+        - label: SSH system metrics
+        - label: Wireless station metrics
+        - label: SNMP if_mib
+        - label: Traffic Analyzer dry-run
+        - label: Blackbox probes
+        - label: Grafana dashboard
+  - type: textarea
+    id: output
+    attributes:
+      label: Redacted preflight output and required adaptations
+      render: shell
+    validations:
+      required: true
+  - type: checkboxes
+    id: privacy
+    attributes:
+      label: Privacy confirmation
+      options:
+        - label: I removed all credentials and real network/device identifiers.
+          required: true
