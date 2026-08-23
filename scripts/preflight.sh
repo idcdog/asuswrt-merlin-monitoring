@@ -153,12 +153,16 @@ if [[ "$mode" != router ]]; then
     fi
   fi
 
-  [[ -x /usr/local/bin/asus-wifi-exporter ]] \
-    && pass "asus-wifi-exporter installed" \
-    || warn "asus-wifi-exporter not installed yet"
-  [[ -x /usr/local/bin/asus-traffic-importer ]] \
-    && pass "asus-traffic-importer installed" \
-    || warn "asus-traffic-importer not installed yet"
+  if [[ -x /usr/local/bin/asus-wifi-exporter ]]; then
+    pass "asus-wifi-exporter installed"
+  else
+    warn "asus-wifi-exporter not installed yet"
+  fi
+  if [[ -x /usr/local/bin/asus-traffic-importer ]]; then
+    pass "asus-traffic-importer installed"
+  else
+    warn "asus-traffic-importer not installed yet"
+  fi
 
   http_check "VictoriaMetrics" "${VICTORIAMETRICS_URL%/}/-/healthy"
   http_check "Grafana" "${GRAFANA_URL%/}/api/health"
@@ -234,9 +238,17 @@ EOF
       buildno=$(printf '%s\n' "$router_output" | sed -n 's/^buildno=//p' | head -1)
       extendno=$(printf '%s\n' "$router_output" | sed -n 's/^extendno=//p' | head -1)
       wl_ifnames=$(printf '%s\n' "$router_output" | sed -n 's/^wl_ifnames=//p' | head -1)
-      [[ -n "$model" ]] && pass "router model detected: ${model}" || fail "router model not returned by nvram"
+      if [[ -n "$model" ]]; then
+        pass "router model detected: ${model}"
+      else
+        fail "router model not returned by nvram"
+      fi
       [[ -n "$firmver$buildno$extendno" ]] && info "router firmware components: ${firmver} / ${buildno} / ${extendno}"
-      [[ -n "$wl_ifnames" ]] && info "wireless base interfaces: ${wl_ifnames}" || fail "wl_ifnames is empty"
+      if [[ -n "$wl_ifnames" ]]; then
+        info "wireless base interfaces: ${wl_ifnames}"
+      else
+        fail "wl_ifnames is empty"
+      fi
       [[ "$wl_ifnames" == "wl0 wl1" ]] || warn "radio mapping differs from verified wl0/wl1 baseline"
 
       for required_command in nvram wl conntrack; do
@@ -246,18 +258,26 @@ EOF
           fail "router command missing from SSH PATH: ${required_command}"
         fi
       done
-      grep -q '^command_sqlite3=present$' <<<"$router_output" \
-        && pass "router command available: sqlite3" \
-        || warn "sqlite3 missing; Traffic Analyzer history import is unavailable"
-      grep -q '^traffic_db=readable$' <<<"$router_output" \
-        && pass "Traffic Analyzer database readable" \
-        || warn "Traffic Analyzer database missing or unreadable"
-      grep -q '^traffic_schema=compatible$' <<<"$router_output" \
-        && pass "Traffic Analyzer schema contains timestamp/mac/tx/rx" \
-        || warn "Traffic Analyzer schema unavailable or incompatible"
-      grep -q '^device_inventory=readable$' <<<"$router_output" \
-        && pass "router device inventory readable" \
-        || warn "/jffs/nmp_cl_json.js is unavailable"
+      if grep -q '^command_sqlite3=present$' <<<"$router_output"; then
+        pass "router command available: sqlite3"
+      else
+        warn "sqlite3 missing; Traffic Analyzer history import is unavailable"
+      fi
+      if grep -q '^traffic_db=readable$' <<<"$router_output"; then
+        pass "Traffic Analyzer database readable"
+      else
+        warn "Traffic Analyzer database missing or unreadable"
+      fi
+      if grep -q '^traffic_schema=compatible$' <<<"$router_output"; then
+        pass "Traffic Analyzer schema contains timestamp/mac/tx/rx"
+      else
+        warn "Traffic Analyzer schema unavailable or incompatible"
+      fi
+      if grep -q '^device_inventory=readable$' <<<"$router_output"; then
+        pass "router device inventory readable"
+      else
+        warn "/jffs/nmp_cl_json.js is unavailable"
+      fi
     else
       fail "SSH collection failed: ${router_output}"
     fi

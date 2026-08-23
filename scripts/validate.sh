@@ -21,8 +21,12 @@ else
 fi
 
 if command -v ruby >/dev/null 2>&1; then
+  yaml_files=()
+  while IFS= read -r yaml_file; do
+    yaml_files+=("$yaml_file")
+  done < <(find . -type f \( -name '*.yml' -o -name '*.yaml' \) -not -path './.git/*' | sort)
   ruby -e 'require "yaml"; ARGV.each { |path| YAML.safe_load(File.read(path), permitted_classes: [], aliases: true) }' \
-    $(find . -type f \( -name '*.yml' -o -name '*.yaml' \) -not -path './.git/*' | sort)
+    "${yaml_files[@]}"
 else
   echo "warning: ruby not installed; skipping YAML parse validation" >&2
 fi
