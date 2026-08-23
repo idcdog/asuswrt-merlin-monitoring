@@ -34,6 +34,20 @@ Internet targets ───────> blackbox_exporter :9115
 
 更详细的数据流见 [docs/architecture.md](docs/architecture.md)。
 
+## Grafana 效果预览
+
+截图来自实际运行环境，已遮挡设备名称、IP、MAC 和公网地址。
+
+![路由器网络总览](docs/images/01-overview-redacted.png)
+
+![互联网质量](docs/images/04-internet-quality.png)
+
+![无线质量](docs/images/05-wireless-quality-redacted.png)
+
+![历史流量](docs/images/07-history-redacted.png)
+
+更多分区截图见 [Grafana 截图集](docs/screenshots.md)。
+
 ## 快速开始
 
 1. 在路由器开启 SSH、SNMP 和 Traffic Analyzer。
