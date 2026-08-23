@@ -62,16 +62,35 @@ printf 'conntrack_active|%s\n' "$((active_tcp + active_udp))"
 if [ -r /sys/class/thermal/thermal_zone0/temp ]; then
   awk '{print "cpu_temp_millicelsius|" $1}' /sys/class/thermal/thermal_zone0/temp
 fi
-for radio in wl0 wl1; do
+radio_band() {
+  radio=$1
+  band_output=$(wl -i "$radio" band 2>/dev/null || true)
+  case "$band_output" in
+    b*) echo '2.4G'; return ;;
+    6*) echo '6G'; return ;;
+  esac
+  nband=$(nvram get "${radio}_nband")
+  case "$nband" in
+    2) echo '2.4G'; return ;;
+    1) echo '5G'; return ;;
+    4) echo '6G'; return ;;
+  esac
+  case "$band_output" in
+    a*) echo '5G' ;;
+    *)
+      chanspec=$(wl -i "$radio" chanspec 2>/dev/null || true)
+      case "$chanspec" in
+        6g*|6G*) echo '6G' ;;
+        *) echo 'unknown' ;;
+      esac
+      ;;
+  esac
+}
+for radio in $(nvram get wl_ifnames); do
+  band=$(radio_band "$radio")
   temp=$(wl -i "$radio" phy_tempsense 2>/dev/null || true)
   temp=${temp%% *}
-  [ -n "$temp" ] && printf '%s_temp_c|%s\n' "$radio" "$temp"
-done
-for radio in wl0 wl1; do
-  case "$radio" in
-    wl0) band='2.4G' ;;
-    wl1) band='5G' ;;
-  esac
+  [ -n "$temp" ] && printf 'radio_temp_%s|%s|%s\n' "$radio" "$band" "$temp"
   stats=$(wl -i "$radio" chanim_stats 2>/dev/null | awk 'NR > 2 && NF >= 15 {last=$0} END {print last}')
   if [ -n "$stats" ]; then
     set -- $stats
@@ -98,13 +117,24 @@ for base in $(nvram get wl_ifnames); do
       *" $iface "*) continue ;;
     esac
     seen_ifaces="$seen_ifaces$iface "
-    wl -i "$iface" assoclist 2>/dev/null | while read -r tag mac; do
-      [ "$tag" = assoclist ] || continue
-      [ -n "${mac:-}" ] || continue
-      echo "@@STA $iface $mac"
-      wl -i "$iface" sta_info "$mac" 2>/dev/null || true
-      echo '@@END@@'
+    if assoc_output=$(wl -i "$iface" assoclist 2>/dev/null); then
+      echo "@@ASSOC_OK $iface"
+    else
+      echo "@@ASSOC_ERROR $iface"
+      continue
+    fi
+    assoc_count=0
+    for mac in $(printf '%s\n' "$assoc_output" | awk '$1 == "assoclist" && NF >= 2 {print $2}'); do
+      if sta_output=$(wl -i "$iface" sta_info "$mac" 2>/dev/null) && [ -n "$sta_output" ]; then
+        echo "@@STA $iface $mac"
+        printf '%s\n' "$sta_output"
+        echo '@@END@@'
+        assoc_count=$((assoc_count + 1))
+      else
+        echo "@@STA_ERROR $iface"
+      fi
     done
+    echo "@@ASSOC_COUNT $iface $assoc_count"
   done
 done
 '''
@@ -349,17 +379,33 @@ def parse_system(raw: str) -> SystemSnapshot:
     if len(cpu_stat) < 4:
         raise RuntimeError("router returned incomplete aggregate CPU counters")
     temperatures: list[tuple[str, float]] = []
-    for key, sensor, scale in (
-        ("cpu_temp_millicelsius", "cpu", 0.001),
-        ("wl0_temp_c", "wifi_2_4ghz", 1.0),
-        ("wl1_temp_c", "wifi_5ghz", 1.0),
-    ):
-        if key in values:
-            temperatures.append((sensor, number(key) * scale))
+    if "cpu_temp_millicelsius" in values:
+        temperatures.append(("cpu", number("cpu_temp_millicelsius") * 0.001))
+    radio_temperatures: list[tuple[str, str, float]] = []
+    for line in raw.splitlines():
+        key, separator, payload = line.partition("|")
+        if not separator or not key.startswith("radio_temp_"):
+            continue
+        fields = payload.split("|")
+        if len(fields) != 2:
+            raise RuntimeError(f"invalid router temperature value for {key}")
+        try:
+            radio_temperatures.append((key.removeprefix("radio_temp_"), fields[0], float(fields[1])))
+        except ValueError as error:
+            raise RuntimeError(f"invalid router temperature value for {key}") from error
+    band_counts: dict[str, int] = {}
+    for _, band, _ in radio_temperatures:
+        band_counts[band] = band_counts.get(band, 0) + 1
+    for iface, band, temperature in radio_temperatures:
+        normalized_band = band.lower().replace(".", "_")
+        sensor = f"wifi_{normalized_band}hz" if band != "unknown" else f"wifi_{iface}"
+        if band_counts[band] > 1:
+            sensor = f"{sensor}_{iface}"
+        temperatures.append((sensor, temperature))
     radios: list[RadioSnapshot] = []
     for line in raw.splitlines():
         key, separator, payload = line.partition("|")
-        if not separator or not key.startswith("radio_"):
+        if not separator or not key.startswith("radio_") or key.startswith("radio_temp_"):
             continue
         fields = payload.split("|")
         if len(fields) != 4:
@@ -460,6 +506,7 @@ def parse_station_blocks(
     raw: str,
     clients: dict[str, dict[str, object]],
     leases: dict[str, tuple[str, str]],
+    radio_bands: dict[str, str] | None = None,
 ) -> list[Station]:
     stations: list[Station] = []
     pattern = re.compile(
@@ -474,10 +521,16 @@ def parse_station_blocks(
         vendor = str(client.get("vendor") or client.get("vendorclass") or "")
         channel = first_number(body, r"^\s*chanspec\s+(\d+)")
         wireless_code = str(client.get("wireless") or "")
-        if channel is not None:
+        base_iface = iface.split(".", 1)[0]
+        discovered_band = (radio_bands or {}).get(base_iface)
+        if discovered_band and discovered_band != "unknown":
+            band = discovered_band
+        elif wireless_code in {"1", "2", "3"}:
+            band = {"1": "2.4G", "2": "5G", "3": "6G"}[wireless_code]
+        elif channel is not None:
             band = "2.4G" if channel <= 14 else ("5G" if channel <= 177 else "6G")
         else:
-            band = {"1": "2.4G", "2": "5G", "3": "6G"}.get(wireless_code, "unknown")
+            band = "unknown"
         values = {
             key: value
             for key, pattern_text in VALUE_PATTERNS.items()
@@ -498,6 +551,29 @@ def parse_station_blocks(
             values["max_rate_bps"] = values.pop("max_rate_mbps") * 1_000_000
         stations.append(Station(mac, iface, band, DeviceIdentity(name, vendor, ip), values))
     return stations
+
+
+def validate_wireless_collection(raw: str, parsed_station_count: int) -> None:
+    successful_interfaces = re.findall(r"^@@ASSOC_OK\s+(\S+)\s*$", raw, flags=re.MULTILINE)
+    association_errors = re.findall(r"^@@ASSOC_ERROR\s+(\S+)\s*$", raw, flags=re.MULTILINE)
+    station_errors = re.findall(r"^@@STA_ERROR\s+(\S+)\s*$", raw, flags=re.MULTILINE)
+    if association_errors or station_errors:
+        failed_interfaces = sorted(set(association_errors + station_errors))
+        raise RuntimeError(
+            "wireless command failed for interface(s): " + ", ".join(failed_interfaces)
+        )
+    if not successful_interfaces:
+        raise RuntimeError("wireless association collection returned no interface status")
+    count_entries = re.findall(r"^@@ASSOC_COUNT\s+(\S+)\s+(\d+)\s*$", raw, flags=re.MULTILINE)
+    count_interfaces = [iface for iface, _ in count_entries]
+    if sorted(count_interfaces) != sorted(successful_interfaces):
+        raise RuntimeError("wireless association collection returned incomplete counts")
+    expected_station_count = sum(int(count) for _, count in count_entries)
+    if expected_station_count != parsed_station_count:
+        raise RuntimeError(
+            f"wireless station output is incomplete: expected {expected_station_count}, "
+            f"parsed {parsed_station_count}"
+        )
 
 
 def apply_aliases(stations: list[Station], aliases: dict[str, str]) -> list[Station]:
@@ -823,11 +899,11 @@ def collect_once(
     nmp = parse_nmp(section(raw, "@@NMP@@", "@@LEASES@@"))
     leases = parse_leases(section(raw, "@@LEASES@@", "@@ARP@@"))
     leases = merge_arp(section(raw, "@@ARP@@", "@@STATIONS@@"), leases)
-    raw_stations = parse_station_blocks(raw, nmp, leases)
+    radio_bands = {radio.iface: radio.band for radio in system.radios}
+    raw_stations = parse_station_blocks(raw, nmp, leases, radio_bands)
+    validate_wireless_collection(raw, len(raw_stations))
     aliases = alias_store.snapshot()
     stations = apply_aliases(raw_stations, aliases)
-    if not stations:
-        raise RuntimeError("router returned no wireless station records")
     devices = build_device_inventory(nmp, leases, raw_stations, aliases)
     metrics = render_device_name_metrics(devices) + render_station_metrics(stations)
     return metrics, system, devices

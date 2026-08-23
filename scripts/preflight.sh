@@ -10,6 +10,7 @@ mode=all
 passes=0
 warnings=0
 failures=0
+detected_wan_interface=''
 
 usage() {
   cat <<'EOF'
@@ -205,6 +206,9 @@ if which nvram >/dev/null 2>&1; then
   printf 'buildno='; nvram get buildno
   printf 'extendno='; nvram get extendno
   printf 'wl_ifnames='; nvram get wl_ifnames
+  wan_unit=$(nvram get wan_unit)
+  [ -n "$wan_unit" ] || wan_unit=0
+  printf 'wan_interface='; nvram get "wan${wan_unit}_ifname"
   db_path=$(nvram get bwdpi_ana_path)
 else
   db_path=''
@@ -238,6 +242,7 @@ EOF
       buildno=$(printf '%s\n' "$router_output" | sed -n 's/^buildno=//p' | head -1)
       extendno=$(printf '%s\n' "$router_output" | sed -n 's/^extendno=//p' | head -1)
       wl_ifnames=$(printf '%s\n' "$router_output" | sed -n 's/^wl_ifnames=//p' | head -1)
+      detected_wan_interface=$(printf '%s\n' "$router_output" | sed -n 's/^wan_interface=//p' | head -1)
       if [[ -n "$model" ]]; then
         pass "router model detected: ${model}"
       else
@@ -249,7 +254,11 @@ EOF
       else
         fail "wl_ifnames is empty"
       fi
-      [[ "$wl_ifnames" == "wl0 wl1" ]] || warn "radio mapping differs from verified wl0/wl1 baseline"
+      if [[ -n "$detected_wan_interface" ]]; then
+        info "active WAN interface reported by Asuswrt: ${detected_wan_interface}"
+      else
+        warn "active WAN interface was not returned by Asuswrt"
+      fi
 
       for required_command in nvram wl conntrack; do
         if grep -q "^command_${required_command}=present$" <<<"$router_output"; then
@@ -291,6 +300,14 @@ EOF
         pass "SNMP if_mib collection succeeded"
         interfaces=$(sed -n 's/.*ifName="\([^"]*\)".*/\1/p' "$snmp_output" | sort -u | tr '\n' ' ')
         [[ -n "$interfaces" ]] && info "SNMP interfaces: ${interfaces}"
+        if [[ -n "$detected_wan_interface" ]]; then
+          if grep -Fq "ifName=\"${detected_wan_interface}\"" "$snmp_output"; then
+            pass "WAN interface auto-discovery matched SNMP: ${detected_wan_interface}"
+            info "Grafana wan_if should resolve automatically to ${detected_wan_interface}"
+          else
+            warn "Asuswrt WAN interface ${detected_wan_interface} is absent from SNMP ifName labels"
+          fi
+        fi
       else
         warn "SNMP endpoint responded without ifName metrics"
       fi

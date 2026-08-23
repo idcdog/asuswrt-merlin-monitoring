@@ -1,0 +1,65 @@
+@@SYSTEM@@
+productid|RT-BE88U
+firmver|3.0.0.6
+buildno|102.8
+extendno|4
+innerver|example
+wan_interface|eth1
+wan_protocol|dhcp
+wan_private_ipv4|192.0.2.2
+wan_public_ipv4|198.51.100.2
+wan_link_up|1
+uptime_seconds|3600.5
+load1|0.25
+load5|0.20
+load15|0.15
+cpu_cores|4
+cpu_stat|100 10 20 800 20 0 0 0
+memtotal_kb|2048000
+memavailable_kb|1024000
+swaptotal_kb|100
+swapfree_kb|80
+conntrack_count|4368
+conntrack_max|300000
+conntrack_active|429
+cpu_temp_millicelsius|74100
+radio_temp_wl0|2.4G|75
+radio_wl0|2.4G|6|18|-92
+radio_temp_wl1|5G|74
+radio_wl1|5G|149|12|-96
+@@NMP@@
+{"02:AA:BB:CC:DD:01":{"name":"Example Phone","vendor":"Example Mobile"},"02:AA:BB:CC:DD:02":{"name":"Example Laptop","vendor":"Example Computer"}}
+@@LEASES@@
+2000000000 02:AA:BB:CC:DD:01 192.0.2.10 phone *
+2000000000 02:AA:BB:CC:DD:02 192.0.2.11 laptop *
+@@ARP@@
+IP address       HW type     Flags       HW address            Mask     Device
+192.0.2.10       0x1         0x2         02:AA:BB:CC:DD:01     *        br0
+192.0.2.11       0x1         0x2         02:AA:BB:CC:DD:02     *        br0
+@@STATIONS@@
+@@ASSOC_OK wl0
+@@STA wl0 02:AA:BB:CC:DD:01
+in network 120 seconds
+idle 3 seconds
+chanspec 6/20
+smoothed rssi: -55
+per antenna noise floor: -95 -93 -94
+rate of last tx pkt: 1200000 kbps
+rate of last rx pkt: 600000 kbps
+tx ucast bytes: 12345
+rx ucast bytes: 67890
+@@END@@
+@@ASSOC_COUNT wl0 1
+@@ASSOC_OK wl1.1
+@@STA wl1.1 02:AA:BB:CC:DD:02
+in network 240 seconds
+idle 1 seconds
+chanspec 149/80
+smoothed rssi: -60
+per antenna noise floor: -96 -95 -94
+rate of last tx pkt: 900000 kbps
+rate of last rx pkt: 500000 kbps
+tx ucast bytes: 22345
+rx ucast bytes: 77890
+@@END@@
+@@ASSOC_COUNT wl1.1 1

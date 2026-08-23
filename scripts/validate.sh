@@ -59,10 +59,20 @@ for path in Path("dashboards").glob("*.json"):
                 raise SystemExit(f"{path}: panels {panel_id} and {other_id} overlap")
         occupied.append((panel_id, x, y, w, h))
 
-    variables = {item.get("name") for item in dashboard.get("templating", {}).get("list", [])}
+    variable_items = dashboard.get("templating", {}).get("list", [])
+    variables = {item.get("name") for item in variable_items}
     required = {"router_ip", "wan_if", "management_url", "client"}
     if missing := required - variables:
         raise SystemExit(f"{path}: missing variables {sorted(missing)}")
+    wan_variable = next(item for item in variable_items if item.get("name") == "wan_if")
+    wan_query = wan_variable.get("query", {})
+    wan_query_text = wan_query.get("query", "") if isinstance(wan_query, dict) else str(wan_query)
+    if wan_variable.get("type") != "query" or "asus_router_wan_info" not in wan_query_text:
+        raise SystemExit(f"{path}: wan_if must be auto-discovered from asus_router_wan_info")
+    for panel in dashboard["panels"]:
+        for target in panel.get("targets", []):
+            if 'ifName="eth1"' in target.get("expr", ""):
+                raise SystemExit(f"{path}: panel {panel.get('id')} hard-codes eth1")
 PY
 
 python3 - <<'PY'

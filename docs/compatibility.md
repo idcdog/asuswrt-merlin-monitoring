@@ -8,7 +8,7 @@
 |---|---|---|
 | Router | ASUS RT-BE88U | Supported |
 | Firmware | Asuswrt-Merlin 3006.102.8_4 | Supported |
-| Wireless interfaces | `wl0 wl1` mapped to 2.4 GHz and 5 GHz | Supported |
+| Wireless interfaces | `wl0 wl1`, dynamically detected as 2.4 GHz and 5 GHz | Supported |
 | Monitoring host | CentOS Stream 10, x86_64 | Supported |
 | Python | 3.12.13; code targets Python 3.10+ | Supported |
 | VictoriaMetrics | single-node 1.125.1 | Supported |
@@ -24,8 +24,8 @@ Standard SNMP `IF-MIB` collection should work on many ASUS models that expose SN
 
 | Router characteristic | Expected result |
 |---|---|
-| Two Broadcom radios exposed as `wl0 wl1` | Most SSH metrics should work |
-| Three radios or 6 GHz radio | Station parsing may work, but radio summary mapping is incomplete |
+| Broadcom radios listed in `wl_ifnames` | Dynamically discovered; 2.4/5/6 GHz parsing is implemented |
+| Three radios or 6 GHz radio | Expected to work; real-model compatibility reports are still needed |
 | MediaTek or Qualcomm wireless tools | Wireless SSH collection is unsupported |
 | No Traffic Analyzer or no router `sqlite3` | Live metrics work; hourly history does not |
 | Different Conntrack binary/path | System collection may fail until adapted |

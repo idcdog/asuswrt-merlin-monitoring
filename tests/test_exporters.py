@@ -5,6 +5,7 @@ import sys
 import tempfile
 import unittest
 from pathlib import Path
+from unittest import mock
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -22,6 +23,26 @@ def load_module(name: str, relative_path: str):
 
 wifi = load_module("asus_wifi_exporter", "src/asus_wifi_exporter.py")
 traffic = load_module("asus_traffic_importer", "src/asus_traffic_importer.py")
+
+
+def fixture(name: str) -> str:
+    return (ROOT / "tests" / "fixtures" / name).read_text(encoding="utf-8")
+
+
+def test_config() -> object:
+    return wifi.Config(
+        router_host="192.0.2.1",
+        router_port=2222,
+        router_user="root",
+        interval_seconds=30,
+        timeout_seconds=20,
+        listen_host="127.0.0.1",
+        listen_port=9101,
+        management_host="127.0.0.1",
+        management_port=9102,
+        alias_file="unused",
+        management_html="unused",
+    )
 
 
 class WifiExporterTests(unittest.TestCase):
@@ -115,6 +136,69 @@ rx ucast bytes: 67890
             self.assertEqual(store.snapshot(), {"02:AA:BB:CC:DD:EE": "Example Device"})
             store.delete("02:AA:BB:CC:DD:EE")
             self.assertEqual(store.snapshot(), {})
+
+    def test_full_collector_fixture(self) -> None:
+        raw = fixture("rt-be88u-3006.102.8_4-full.txt")
+        with tempfile.TemporaryDirectory() as directory:
+            aliases = wifi.AliasStore(str(Path(directory) / "aliases.json"))
+            with mock.patch.object(wifi, "ssh_collect", return_value=raw):
+                metrics, snapshot, devices = wifi.collect_once(test_config(), aliases)
+        self.assertEqual(snapshot.model, "RT-BE88U")
+        self.assertEqual(
+            [(radio.iface, radio.band) for radio in snapshot.radios],
+            [("wl0", "2.4G"), ("wl1", "5G")],
+        )
+        self.assertIn("asus_wifi_stations 2\n", metrics)
+        self.assertEqual(sum(bool(device["online"]) for device in devices), 2)
+
+    def test_zero_station_fixture_is_healthy(self) -> None:
+        raw = fixture("rt-be88u-3006.102.8_4-zero-stations.txt")
+        with tempfile.TemporaryDirectory() as directory:
+            aliases = wifi.AliasStore(str(Path(directory) / "aliases.json"))
+            with mock.patch.object(wifi, "ssh_collect", return_value=raw):
+                metrics, snapshot, devices = wifi.collect_once(test_config(), aliases)
+        self.assertEqual(snapshot.uptime_seconds, 7200)
+        self.assertIn("asus_wifi_stations 0\n", metrics)
+        self.assertNotIn("asus_wifi_station_info{", metrics)
+        self.assertEqual(len(devices), 1)
+        self.assertFalse(devices[0]["online"])
+        state = wifi.CollectorState()
+        state.success(metrics, devices, 0.1)
+        rendered, healthy = state.render(30)
+        self.assertTrue(healthy)
+        self.assertIn("asus_wifi_stations 0\n", rendered)
+        self.assertIn("asus_wifi_exporter_collection_errors_total 0", rendered)
+
+    def test_wireless_command_error_is_not_zero_stations(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            aliases = wifi.AliasStore(str(Path(directory) / "aliases.json"))
+            with mock.patch.object(
+                wifi, "ssh_collect", return_value=fixture("wireless-command-error.txt")
+            ):
+                with self.assertRaisesRegex(RuntimeError, "wl1"):
+                    wifi.collect_once(test_config(), aliases)
+
+    def test_truncated_station_block_is_rejected(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            aliases = wifi.AliasStore(str(Path(directory) / "aliases.json"))
+            with mock.patch.object(
+                wifi, "ssh_collect", return_value=fixture("wireless-malformed.txt")
+            ):
+                with self.assertRaisesRegex(RuntimeError, "expected 1, parsed 0"):
+                    wifi.collect_once(test_config(), aliases)
+
+    def test_six_ghz_band_comes_from_discovered_radio(self) -> None:
+        raw = fixture("tri-band-6ghz.txt")
+        system = wifi.parse_system(wifi.section(raw, "@@SYSTEM@@", "@@NMP@@"))
+        stations = wifi.parse_station_blocks(
+            raw,
+            wifi.parse_nmp(wifi.section(raw, "@@NMP@@", "@@LEASES@@")),
+            wifi.parse_leases(wifi.section(raw, "@@LEASES@@", "@@ARP@@")),
+            {radio.iface: radio.band for radio in system.radios},
+        )
+        self.assertEqual(stations[0].band, "6G")
+        self.assertEqual(stations[0].values["channel"], 5)
+        self.assertIn(("wifi_6ghz", 62.0), system.temperatures)
 
 
 class TrafficImporterTests(unittest.TestCase):

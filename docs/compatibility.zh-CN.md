@@ -8,7 +8,7 @@
 |---|---|---|
 | 路由器 | ASUS RT-BE88U | 已支持 |
 | 固件 | Asuswrt-Merlin 3006.102.8_4 | 已支持 |
-| 无线接口 | `wl0 wl1` 对应 2.4 GHz 和 5 GHz | 已支持 |
+| 无线接口 | `wl0 wl1`，动态识别为 2.4 GHz 和 5 GHz | 已支持 |
 | 监控服务器 | CentOS Stream 10，x86_64 | 已支持 |
 | Python | 3.12.13；代码最低要求 3.10 | 已支持 |
 | VictoriaMetrics | single-node 1.125.1 | 已支持 |
@@ -24,8 +24,8 @@
 
 | 路由器特征 | 预期结果 |
 |---|---|
-| 两个 Broadcom 射频，接口为 `wl0 wl1` | 大部分 SSH 指标应可用 |
-| 三频或 6 GHz 射频 | 客户端解析可能可用，但射频摘要映射不完整 |
+| `wl_ifnames` 中列出的 Broadcom 射频 | 动态发现，已实现 2.4/5/6 GHz 解析 |
+| 三频或 6 GHz 射频 | 预期可用，但仍需要真实型号兼容性报告 |
 | MediaTek 或 Qualcomm 无线工具 | 当前不支持无线 SSH 采集 |
 | 没有 Traffic Analyzer 或 `sqlite3` | 实时指标可用，小时历史不可用 |
 | Conntrack 命令或路径不同 | 需适配后才能采集完整系统信息 |

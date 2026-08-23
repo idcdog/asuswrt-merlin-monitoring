@@ -20,7 +20,7 @@ sudo ./scripts/preflight.sh
 
 ## WAN 面板为零
 
-`eth1` 不一定是 WAN。使用下面的 PromQL 列出接口，并把 Grafana 的 `wan_if` 设置为实际承载互联网流量的接口：
+仪表盘通常会从 `asus_router_wan_info` 自动发现活动 WAN 接口。先运行前置检查确认同名接口存在于 SNMP；如果变量为空或两边名称不同，再使用下面的 PromQL 列出接口，并临时把 `wan_if` 选为实际承载互联网流量的接口：
 
 ```promql
 ifHCInOctets{instance="192.168.1.1"}

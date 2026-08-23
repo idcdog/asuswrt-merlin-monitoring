@@ -143,11 +143,11 @@ sudo systemctl restart grafana-server.service
 打开仪表盘后设置变量：
 
 - `router_ip`：路由器 IP，默认 `192.168.1.1`
-- `wan_if`：SNMP 中的 WAN 接口名，默认 `eth1`
+- `wan_if`：从 `asus_router_wan_info` 中自动发现的活动 WAN 接口
 - `management_url`：设备别名管理页，例如 `http://192.168.1.10:9102`
 - `client`：无线设备筛选器，自动从指标标签生成
 
-可用下面的 PromQL 确认 WAN 接口名称：
+前置检查会验证 SSH 发现的 WAN 名称是否也存在于 SNMP 中。如果自动发现为空或名称不匹配，可用下面的 PromQL 检查接口：
 
 ```promql
 ifHCInOctets{instance="192.168.1.1"}

@@ -140,11 +140,11 @@ sudo systemctl restart grafana-server.service
 Set these dashboard variables:
 
 - `router_ip`: router address used as the SNMP instance label
-- `wan_if`: actual SNMP WAN interface name, not necessarily `eth1`
+- `wan_if`: query variable discovered from the active interface in `asus_router_wan_info`
 - `management_url`: optional device-name manager URL
 - `client`: generated automatically from device-name metrics
 
-Discover interface names with:
+Preflight verifies whether the SSH-discovered WAN name also exists in SNMP. If automatic discovery is empty or does not match, inspect interface names with:
 
 ```promql
 ifHCInOctets{instance="192.168.1.1"}

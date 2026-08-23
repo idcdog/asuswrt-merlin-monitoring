@@ -33,13 +33,13 @@ Verify UDP 161 is allowed from the monitoring host, the auth name matches both f
 
 ## WAN panels show zero or no data
 
-The WAN interface is not always `eth1`. Query all interfaces in Grafana Explore:
+The dashboard normally discovers the active WAN interface from `asus_router_wan_info`. Run preflight to confirm that the same name exists in SNMP. If the variable is empty or the two names differ, query all interfaces in Grafana Explore:
 
 ```promql
 ifHCInOctets{instance="192.168.1.1"}
 ```
 
-Set `wan_if` to the interface carrying Internet traffic. Confirm that the `instance` label equals the dashboard `router_ip` variable.
+Select the interface carrying Internet traffic as the temporary `wan_if` value. Confirm that the `instance` label equals the dashboard `router_ip` variable.
 
 ## Traffic Analyzer has no history
 

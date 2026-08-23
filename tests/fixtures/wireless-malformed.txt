@@ -1,0 +1,14 @@
+@@SYSTEM@@
+productid|Example-Router
+cpu_stat|1 2 3 4
+radio_wl0|2.4G|6|10|-94
+@@NMP@@
+{}
+@@LEASES@@
+@@ARP@@
+@@STATIONS@@
+@@ASSOC_OK wl0
+@@STA wl0 02:AA:BB:CC:DD:04
+chanspec 6/20
+smoothed rssi: -50
+@@ASSOC_COUNT wl0 1

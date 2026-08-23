@@ -1,0 +1,35 @@
+@@SYSTEM@@
+productid|RT-BE88U
+firmver|3.0.0.6
+buildno|102.8
+extendno|4
+innerver|example
+wan_interface|eth1
+wan_protocol|dhcp
+wan_link_up|1
+uptime_seconds|7200
+load1|0.10
+load5|0.10
+load15|0.10
+cpu_cores|4
+cpu_stat|200 10 30 1600 20 0 0 0
+memtotal_kb|2048000
+memavailable_kb|1536000
+conntrack_count|100
+conntrack_max|300000
+conntrack_active|20
+radio_temp_wl0|2.4G|70
+radio_wl0|2.4G|1|10|-94
+radio_temp_wl1|5G|69
+radio_wl1|5G|44|8|-96
+@@NMP@@
+{"02:AA:BB:CC:DD:03":{"name":"Offline Example","vendor":"Example Vendor"}}
+@@LEASES@@
+2000000000 02:AA:BB:CC:DD:03 192.0.2.12 offline-example *
+@@ARP@@
+IP address       HW type     Flags       HW address            Mask     Device
+@@STATIONS@@
+@@ASSOC_OK wl0
+@@ASSOC_COUNT wl0 0
+@@ASSOC_OK wl1
+@@ASSOC_COUNT wl1 0

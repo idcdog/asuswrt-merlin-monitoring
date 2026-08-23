@@ -4106,24 +4106,24 @@
         "type": "textbox"
       },
       {
-        "current": {
-          "selected": true,
-          "text": "eth1",
-          "value": "eth1"
+        "current": {},
+        "datasource": {
+          "type": "prometheus",
+          "uid": "victoriametrics"
         },
+        "definition": "label_values(asus_router_wan_info{job=\"asus_wifi_clients\"}, interface)",
         "hide": 0,
-        "label": "WAN 接口",
+        "label": "WAN 接口（自动发现）",
         "name": "wan_if",
-        "options": [
-          {
-            "selected": true,
-            "text": "eth1",
-            "value": "eth1"
-          }
-        ],
-        "query": "eth1",
+        "options": [],
+        "query": {
+          "query": "label_values(asus_router_wan_info{job=\"asus_wifi_clients\"}, interface)",
+          "refId": "StandardVariableQuery"
+        },
+        "refresh": 1,
         "skipUrlSync": false,
-        "type": "textbox"
+        "sort": 1,
+        "type": "query"
       },
       {
         "current": {
