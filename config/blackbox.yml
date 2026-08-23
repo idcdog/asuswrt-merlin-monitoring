@@ -1,0 +1,27 @@
+modules:
+  http_2xx_ipv4:
+    prober: http
+    timeout: 5s
+    http:
+      preferred_ip_protocol: ip4
+      ip_protocol_fallback: false
+      follow_redirects: true
+
+  icmp_ipv4:
+    prober: icmp
+    timeout: 3s
+    icmp:
+      preferred_ip_protocol: ip4
+      ip_protocol_fallback: false
+
+  dns_baidu_ipv4:
+    prober: dns
+    timeout: 3s
+    dns:
+      preferred_ip_protocol: ip4
+      ip_protocol_fallback: false
+      transport_protocol: udp
+      query_name: www.baidu.com
+      query_type: A
+      valid_rcodes:
+        - NOERROR

@@ -1,0 +1,4191 @@
+{
+  "annotations": {
+    "list": []
+  },
+  "editable": true,
+  "fiscalYearStartMonth": 0,
+  "graphTooltip": 1,
+  "id": null,
+  "links": [
+    {
+      "asDropdown": false,
+      "icon": "external link",
+      "includeVars": false,
+      "keepTime": false,
+      "tags": [],
+      "targetBlank": true,
+      "title": "设备名称管理",
+      "tooltip": "按 MAC 修改设备显示名称",
+      "type": "link",
+      "url": "$management_url/"
+    }
+  ],
+  "liveNow": false,
+  "panels": [
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "victoriametrics"
+      },
+      "description": "由 Blackbox Exporter 每 30 秒访问一次 https://www.baidu.com/，成功返回 2xx 即为可用。",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [
+            {
+              "options": {
+                "0": {
+                  "color": "red",
+                  "text": "失败"
+                },
+                "1": {
+                  "color": "green",
+                  "text": "正常"
+                }
+              },
+              "type": "value"
+            }
+          ],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "red",
+                "value": null
+              },
+              {
+                "color": "green",
+                "value": 1
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 4,
+        "x": 0,
+        "y": 0
+      },
+      "id": 37,
+      "options": {
+        "colorMode": "background",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "textMode": "auto",
+        "wideLayout": true
+      },
+      "targets": [
+        {
+          "expr": "probe_success{job=\"internet_https\"}",
+          "instant": true,
+          "legendFormat": "百度 HTTPS",
+          "refId": "A"
+        }
+      ],
+      "title": "互联网状态",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "victoriametrics"
+      },
+      "description": "所选 WAN 接口 的接收速率，按最近 2 分钟计数器增长率计算；代表路由器总互联网下载速度。",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "fixed",
+            "fixedColor": "blue"
+          },
+          "decimals": 2,
+          "min": 0,
+          "unit": "bps"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 5,
+        "x": 4,
+        "y": 0
+      },
+      "id": 31,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "textMode": "auto",
+        "wideLayout": true
+      },
+      "targets": [
+        {
+          "expr": "rate(ifHCInOctets{job=\"asus_rt_be88u\",instance=\"$router_ip\",ifName=\"$wan_if\"}[2m]) * 8",
+          "instant": true,
+          "legendFormat": "总下载速度",
+          "refId": "A"
+        }
+      ],
+      "title": "互联网总下载速度",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "victoriametrics"
+      },
+      "description": "所选 WAN 接口 的发送速率，按最近 2 分钟计数器增长率计算；代表路由器总互联网上传速度。",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "fixed",
+            "fixedColor": "green"
+          },
+          "decimals": 2,
+          "min": 0,
+          "unit": "bps"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 5,
+        "x": 9,
+        "y": 0
+      },
+      "id": 32,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "textMode": "auto",
+        "wideLayout": true
+      },
+      "targets": [
+        {
+          "expr": "rate(ifHCOutOctets{job=\"asus_rt_be88u\",instance=\"$router_ip\",ifName=\"$wan_if\"}[2m]) * 8",
+          "instant": true,
+          "legendFormat": "总上传速度",
+          "refId": "A"
+        }
+      ],
+      "title": "互联网总上传速度",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "victoriametrics"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "fixed",
+            "fixedColor": "blue"
+          },
+          "decimals": 0
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 5,
+        "x": 14,
+        "y": 0
+      },
+      "id": 1,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "horizontal",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "textMode": "auto",
+        "wideLayout": true
+      },
+      "targets": [
+        {
+          "expr": "count(count by (mac) (asus_wifi_station_info{job=\"asus_wifi_clients\"}))",
+          "instant": true,
+          "legendFormat": "总数",
+          "refId": "A"
+        },
+        {
+          "expr": "count(count by (mac) (asus_wifi_station_info{job=\"asus_wifi_clients\",band=\"2.4G\"}))",
+          "instant": true,
+          "legendFormat": "2.4G",
+          "refId": "B"
+        },
+        {
+          "expr": "count(count by (mac) (asus_wifi_station_info{job=\"asus_wifi_clients\",band=\"5G\"}))",
+          "instant": true,
+          "legendFormat": "5G",
+          "refId": "C"
+        }
+      ],
+      "title": "在线无线设备",
+      "type": "stat",
+      "description": "当前关联到路由器的无线设备；卡片内依次显示总数、2.4G 和 5G。"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "victoriametrics"
+      },
+      "description": "依次显示 conntrack 当前条目、配置上限和 Merlin 口径的活跃连接。",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "fixed",
+            "fixedColor": "blue"
+          },
+          "decimals": 0,
+          "unit": "short"
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byFrameRefID",
+              "options": "B"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "mode": "fixed",
+                  "fixedColor": "dark-blue"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byFrameRefID",
+              "options": "C"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "mode": "fixed",
+                  "fixedColor": "green"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 5,
+        "x": 19,
+        "y": 0
+      },
+      "id": 33,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "horizontal",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "textMode": "auto",
+        "wideLayout": true
+      },
+      "targets": [
+        {
+          "expr": "asus_router_conntrack_entries{job=\"asus_wifi_clients\"}",
+          "instant": true,
+          "legendFormat": "当前",
+          "refId": "A"
+        },
+        {
+          "expr": "asus_router_conntrack_limit{job=\"asus_wifi_clients\"}",
+          "instant": true,
+          "legendFormat": "上限",
+          "refId": "B"
+        },
+        {
+          "expr": "asus_router_conntrack_active{job=\"asus_wifi_clients\"}",
+          "instant": true,
+          "legendFormat": "活跃",
+          "refId": "C"
+        }
+      ],
+      "title": "连接数",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "victoriametrics"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "fixed",
+            "fixedColor": "dark-blue"
+          },
+          "unit": "s"
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byFrameRefID",
+              "options": "B"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "dateTimeAsLocal"
+              },
+              {
+                "id": "color",
+                "value": {
+                  "mode": "fixed",
+                  "fixedColor": "light-blue"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 6,
+        "x": 0,
+        "y": 4
+      },
+      "id": 23,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "horizontal",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "textMode": "auto",
+        "wideLayout": true
+      },
+      "targets": [
+        {
+          "expr": "asus_router_uptime_seconds{job=\"asus_wifi_clients\"}",
+          "instant": true,
+          "legendFormat": "运行时长",
+          "refId": "A"
+        },
+        {
+          "expr": "asus_router_boot_time_seconds{job=\"asus_wifi_clients\"} * 1000",
+          "instant": true,
+          "legendFormat": "启动时间",
+          "refId": "B"
+        }
+      ],
+      "title": "本次启动",
+      "type": "stat",
+      "description": "同时显示本次运行时长和估算的路由器启动时间。"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "victoriametrics"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "max": 1,
+          "min": 0,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "orange",
+                "value": 0.7
+              },
+              {
+                "color": "red",
+                "value": 0.9
+              }
+            ]
+          },
+          "unit": "percentunit"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 4,
+        "x": 6,
+        "y": 4
+      },
+      "id": 24,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "textMode": "auto",
+        "wideLayout": true
+      },
+      "targets": [
+        {
+          "expr": "asus_router_cpu_usage_ratio{job=\"asus_wifi_clients\"}",
+          "instant": true,
+          "legendFormat": "CPU 使用率",
+          "refId": "A"
+        }
+      ],
+      "title": "CPU 使用率",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "victoriametrics"
+      },
+      "description": "显示内存使用率和物理总内存。",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "max": 1,
+          "min": 0,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "orange",
+                "value": 0.75
+              },
+              {
+                "color": "red",
+                "value": 0.9
+              }
+            ]
+          },
+          "unit": "percentunit"
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byFrameRefID",
+              "options": "B"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "bytes"
+              },
+              {
+                "id": "color",
+                "value": {
+                  "mode": "fixed",
+                  "fixedColor": "light-blue"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 4,
+        "x": 10,
+        "y": 4
+      },
+      "id": 26,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "horizontal",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "textMode": "auto",
+        "wideLayout": true
+      },
+      "targets": [
+        {
+          "expr": "asus_router_memory_usage_ratio{job=\"asus_wifi_clients\"}",
+          "instant": true,
+          "legendFormat": "使用率",
+          "refId": "A"
+        },
+        {
+          "expr": "asus_router_memory_total_bytes{job=\"asus_wifi_clients\"}",
+          "instant": true,
+          "legendFormat": "总内存",
+          "refId": "B"
+        }
+      ],
+      "title": "内存",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "victoriametrics"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "orange",
+                "value": 80
+              },
+              {
+                "color": "red",
+                "value": 90
+              }
+            ]
+          },
+          "unit": "celsius"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 4,
+        "x": 14,
+        "y": 4
+      },
+      "id": 27,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "textMode": "auto",
+        "wideLayout": true
+      },
+      "targets": [
+        {
+          "expr": "asus_router_temperature_celsius{job=\"asus_wifi_clients\",sensor=\"cpu\"}",
+          "instant": true,
+          "legendFormat": "CPU 温度",
+          "refId": "A"
+        }
+      ],
+      "title": "CPU 温度",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "victoriametrics"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [
+            {
+              "options": {
+                "0": {
+                  "color": "red",
+                  "text": "异常"
+                },
+                "1": {
+                  "color": "green",
+                  "text": "正常"
+                }
+              },
+              "type": "value"
+            }
+          ],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "red",
+                "value": null
+              },
+              {
+                "color": "green",
+                "value": 1
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 3,
+        "x": 18,
+        "y": 4
+      },
+      "id": 4,
+      "options": {
+        "colorMode": "background",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "textMode": "auto",
+        "wideLayout": true
+      },
+      "targets": [
+        {
+          "expr": "asus_wifi_exporter_up{job=\"asus_wifi_clients\"}",
+          "instant": true,
+          "legendFormat": "采集状态",
+          "refId": "A"
+        }
+      ],
+      "title": "SSH 采集状态",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "victoriametrics"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "unit": "s",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "orange",
+                "value": 60
+              },
+              {
+                "color": "red",
+                "value": 90
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 3,
+        "x": 21,
+        "y": 4
+      },
+      "id": 5,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "textMode": "auto",
+        "wideLayout": true
+      },
+      "targets": [
+        {
+          "expr": "time() - asus_wifi_exporter_last_success_unixtime_seconds{job=\"asus_wifi_clients\"}",
+          "instant": true,
+          "legendFormat": "数据延迟",
+          "refId": "A"
+        }
+      ],
+      "title": "数据新鲜度",
+      "type": "stat",
+      "description": "距离 SSH 采集器最近一次成功采集的时间；60 秒以上提示关注，90 秒以上视为异常。"
+    },
+    {
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 8
+      },
+      "id": 70,
+      "panels": [],
+      "title": "当前网络活动",
+      "type": "row"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "victoriametrics"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "drawStyle": "line",
+            "fillOpacity": 8,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "lineInterpolation": "linear",
+            "lineWidth": 2,
+            "pointSize": 3,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "never",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "unit": "bps"
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byFrameRefID",
+              "options": "A"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "blue",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byFrameRefID",
+              "options": "B"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "orange",
+                  "mode": "fixed"
+                }
+              },
+              {
+                "id": "custom.lineStyle",
+                "value": {
+                  "dash": [
+                    10,
+                    5
+                  ],
+                  "fill": "dash"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 9,
+        "w": 16,
+        "x": 0,
+        "y": 9
+      },
+      "id": 6,
+      "options": {
+        "legend": {
+          "calcs": [
+            "lastNotNull",
+            "max"
+          ],
+          "displayMode": "table",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
+      },
+      "targets": [
+        {
+          "expr": "sum(rate(asus_wifi_station_ap_tx_unicast_bytes_total{job=\"asus_wifi_clients\",mac=~\"$client\"}[$__rate_interval])) * 8",
+          "legendFormat": "所选设备下载",
+          "refId": "A"
+        },
+        {
+          "expr": "sum(rate(asus_wifi_station_ap_rx_unicast_bytes_total{job=\"asus_wifi_clients\",mac=~\"$client\"}[$__rate_interval])) * 8",
+          "legendFormat": "所选设备上传",
+          "refId": "B"
+        }
+      ],
+      "title": "设备实时无线流量",
+      "description": "使用逐设备单播字节：AP 发送方向视为设备下载，AP 接收方向视为设备上传；包含局域网单播流量，并非纯 WAN 流量。",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "victoriametrics"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "continuous-BlYlRd"
+          },
+          "min": 0,
+          "unit": "bps"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 9,
+        "w": 8,
+        "x": 16,
+        "y": 9
+      },
+      "id": 7,
+      "options": {
+        "displayMode": "gradient",
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": false
+        },
+        "minVizHeight": 10,
+        "minVizWidth": 0,
+        "namePlacement": "auto",
+        "orientation": "horizontal",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showUnfilled": true,
+        "sizing": "auto",
+        "valueMode": "color"
+      },
+      "targets": [
+        {
+          "expr": "topk(15, (sum by (mac,name) (rate(asus_wifi_station_ap_tx_unicast_bytes_total{job=\"asus_wifi_clients\"}[$__rate_interval])) + sum by (mac,name) (rate(asus_wifi_station_ap_rx_unicast_bytes_total{job=\"asus_wifi_clients\"}[$__rate_interval]))) * 8)",
+          "instant": true,
+          "legendFormat": "{{name}}",
+          "refId": "A"
+        }
+      ],
+      "title": "当前流量 Top 15",
+      "type": "bargauge"
+    },
+    {
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 18
+      },
+      "id": 71,
+      "panels": [],
+      "title": "当前连接设备",
+      "type": "row"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "victoriametrics"
+      },
+      "description": "每 30 秒从路由器只读采集一次。名称来自 Network Map，IP 优先来自 DHCP 租约并以 ARP 补充。",
+      "fieldConfig": {
+        "defaults": {},
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 9,
+        "w": 24,
+        "x": 0,
+        "y": 19
+      },
+      "id": 12,
+      "options": {
+        "cellHeight": "sm",
+        "footer": {
+          "countRows": false,
+          "fields": "",
+          "reducer": [
+            "sum"
+          ],
+          "show": false
+        },
+        "showHeader": true
+      },
+      "targets": [
+        {
+          "expr": "max by (mac,name,ip,vendor,band,iface) (asus_wifi_station_info{job=\"asus_wifi_clients\",mac=~\"$client\"})",
+          "format": "table",
+          "instant": true,
+          "legendFormat": "",
+          "refId": "A"
+        }
+      ],
+      "title": "当前连接设备明细",
+      "transformations": [
+        {
+          "id": "labelsToFields",
+          "options": {}
+        },
+        {
+          "id": "organize",
+          "options": {
+            "excludeByName": {
+              "Time": true,
+              "Value": true,
+              "__name__": true,
+              "job": true,
+              "instance": true
+            },
+            "indexByName": {
+              "name": 0,
+              "ip": 1,
+              "mac": 2,
+              "band": 3,
+              "iface": 4,
+              "vendor": 5
+            },
+            "renameByName": {
+              "band": "频段",
+              "iface": "无线接口",
+              "ip": "IP",
+              "mac": "MAC",
+              "name": "设备名称",
+              "vendor": "厂商"
+            }
+          }
+        }
+      ],
+      "type": "table"
+    },
+    {
+      "gridPos": {
+        "h": 3,
+        "w": 24,
+        "x": 0,
+        "y": 28
+      },
+      "id": 13,
+      "options": {
+        "code": {
+          "language": "plaintext",
+          "showLineNumbers": false,
+          "showMiniMap": false
+        },
+        "content": "实时流量来自无线驱动的逐设备单播计数，已排除会被重复归属的广播和组播；仍包含局域网单播通信，不等于纯互联网流量。设备重连或路由器重启时计数器会归零，Prometheus rate() 会按计数器重置处理。",
+        "mode": "markdown"
+      },
+      "pluginVersion": "12.4.3",
+      "title": "指标说明",
+      "type": "text"
+    },
+    {
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 31
+      },
+      "id": 21,
+      "panels": [],
+      "title": "路由器详细状态",
+      "type": "row"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "victoriametrics"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "fixed",
+            "fixedColor": "blue"
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 6,
+        "x": 0,
+        "y": 32
+      },
+      "id": 22,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "textMode": "name",
+        "wideLayout": true
+      },
+      "targets": [
+        {
+          "expr": "asus_router_info{job=\"asus_wifi_clients\"}",
+          "instant": true,
+          "legendFormat": "{{model}} · {{firmware}}",
+          "refId": "A"
+        }
+      ],
+      "title": "型号与固件",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "victoriametrics"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "fixed",
+            "fixedColor": "light-blue"
+          },
+          "unit": "bytes"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 6,
+        "x": 6,
+        "y": 32
+      },
+      "id": 25,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "textMode": "auto",
+        "wideLayout": true
+      },
+      "targets": [
+        {
+          "expr": "asus_router_memory_total_bytes{job=\"asus_wifi_clients\"}",
+          "instant": true,
+          "legendFormat": "总内存",
+          "refId": "A"
+        }
+      ],
+      "title": "总内存",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "victoriametrics"
+      },
+      "description": "路由器允许的 conntrack 最大条目数，对应 Merlin 系统信息页 Connections 中间数值。",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "fixed",
+            "fixedColor": "dark-blue"
+          },
+          "decimals": 0,
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 6,
+        "x": 12,
+        "y": 32
+      },
+      "id": 34,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "textMode": "auto",
+        "wideLayout": true
+      },
+      "targets": [
+        {
+          "expr": "asus_router_conntrack_limit{job=\"asus_wifi_clients\"}",
+          "instant": true,
+          "legendFormat": "连接上限",
+          "refId": "A"
+        }
+      ],
+      "title": "连接跟踪上限",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "victoriametrics"
+      },
+      "description": "严格采用 Asuswrt-Merlin 页面口径：TCP ESTABLISHED 数量加 UDP ASSURED 数量。",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "fixed",
+            "fixedColor": "green"
+          },
+          "decimals": 0,
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 6,
+        "x": 18,
+        "y": 32
+      },
+      "id": 35,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "textMode": "auto",
+        "wideLayout": true
+      },
+      "targets": [
+        {
+          "expr": "asus_router_conntrack_active{job=\"asus_wifi_clients\"}",
+          "instant": true,
+          "legendFormat": "活跃连接",
+          "refId": "A"
+        }
+      ],
+      "title": "活跃连接",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "victoriametrics"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "使用率",
+            "axisPlacement": "auto",
+            "drawStyle": "line",
+            "fillOpacity": 8,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "lineInterpolation": "linear",
+            "lineWidth": 2,
+            "pointSize": 3,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "never",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "max": 1,
+          "min": 0,
+          "unit": "percentunit"
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byFrameRefID",
+              "options": "A"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "blue",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byFrameRefID",
+              "options": "B"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "orange",
+                  "mode": "fixed"
+                }
+              },
+              {
+                "id": "custom.lineStyle",
+                "value": {
+                  "dash": [
+                    10,
+                    5
+                  ],
+                  "fill": "dash"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 9,
+        "w": 8,
+        "x": 0,
+        "y": 36
+      },
+      "id": 28,
+      "options": {
+        "legend": {
+          "calcs": [
+            "lastNotNull",
+            "max"
+          ],
+          "displayMode": "table",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
+      },
+      "targets": [
+        {
+          "expr": "asus_router_cpu_usage_ratio{job=\"asus_wifi_clients\"}",
+          "legendFormat": "CPU",
+          "refId": "A"
+        },
+        {
+          "expr": "asus_router_memory_usage_ratio{job=\"asus_wifi_clients\"}",
+          "legendFormat": "内存",
+          "refId": "B"
+        }
+      ],
+      "title": "CPU 与内存使用率",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "victoriametrics"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "负载",
+            "axisPlacement": "auto",
+            "drawStyle": "line",
+            "fillOpacity": 5,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "lineInterpolation": "linear",
+            "lineWidth": 2,
+            "pointSize": 3,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "never",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "min": 0
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 9,
+        "w": 8,
+        "x": 8,
+        "y": 36
+      },
+      "id": 29,
+      "options": {
+        "legend": {
+          "calcs": [
+            "lastNotNull",
+            "max"
+          ],
+          "displayMode": "table",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
+      },
+      "targets": [
+        {
+          "expr": "asus_router_load1{job=\"asus_wifi_clients\"}",
+          "legendFormat": "1 分钟",
+          "refId": "A"
+        },
+        {
+          "expr": "asus_router_load5{job=\"asus_wifi_clients\"}",
+          "legendFormat": "5 分钟",
+          "refId": "B"
+        },
+        {
+          "expr": "asus_router_load15{job=\"asus_wifi_clients\"}",
+          "legendFormat": "15 分钟",
+          "refId": "C"
+        }
+      ],
+      "title": "CPU 平均负载",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "victoriametrics"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "温度",
+            "axisPlacement": "auto",
+            "drawStyle": "line",
+            "fillOpacity": 5,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "lineInterpolation": "linear",
+            "lineWidth": 2,
+            "pointSize": 3,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "never",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "line"
+            }
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "orange",
+                "value": 80
+              },
+              {
+                "color": "red",
+                "value": 90
+              }
+            ]
+          },
+          "unit": "celsius"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 9,
+        "w": 8,
+        "x": 16,
+        "y": 36
+      },
+      "id": 30,
+      "options": {
+        "legend": {
+          "calcs": [
+            "lastNotNull",
+            "max"
+          ],
+          "displayMode": "table",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
+      },
+      "targets": [
+        {
+          "expr": "asus_router_temperature_celsius{job=\"asus_wifi_clients\"}",
+          "legendFormat": "{{sensor}}",
+          "refId": "A"
+        }
+      ],
+      "title": "CPU 与无线芯片温度",
+      "type": "timeseries"
+    },
+    {
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 45
+      },
+      "id": 36,
+      "panels": [],
+      "title": "互联网质量",
+      "type": "row"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "victoriametrics"
+      },
+      "description": "到 223.5.5.5 的 ICMP 往返时间，用于观察基础线路延迟。",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "orange",
+                "value": 0.08
+              },
+              {
+                "color": "red",
+                "value": 0.15
+              }
+            ]
+          },
+          "unit": "s"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 6,
+        "x": 0,
+        "y": 46
+      },
+      "id": 38,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "textMode": "auto",
+        "wideLayout": true
+      },
+      "targets": [
+        {
+          "expr": "probe_icmp_duration_seconds{job=\"internet_icmp\",phase=\"rtt\"}",
+          "instant": true,
+          "legendFormat": "ICMP RTT",
+          "refId": "A"
+        }
+      ],
+      "title": "基础网络 RTT",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "victoriametrics"
+      },
+      "description": "百度 HTTPS 完整探测耗时，包括 DNS、连接、TLS、服务端处理及传输。",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "orange",
+                "value": 0.5
+              },
+              {
+                "color": "red",
+                "value": 1
+              }
+            ]
+          },
+          "unit": "s"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 6,
+        "x": 6,
+        "y": 46
+      },
+      "id": 39,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "textMode": "auto",
+        "wideLayout": true
+      },
+      "targets": [
+        {
+          "expr": "probe_duration_seconds{job=\"internet_https\"}",
+          "instant": true,
+          "legendFormat": "百度 HTTPS",
+          "refId": "A"
+        }
+      ],
+      "title": "百度 HTTPS 耗时",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "victoriametrics"
+      },
+      "description": "通过路由器 DNS 查询 www.baidu.com A 记录的请求响应耗时。",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "orange",
+                "value": 0.1
+              },
+              {
+                "color": "red",
+                "value": 0.3
+              }
+            ]
+          },
+          "unit": "s"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 6,
+        "x": 12,
+        "y": 46
+      },
+      "id": 40,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "textMode": "auto",
+        "wideLayout": true
+      },
+      "targets": [
+        {
+          "expr": "probe_dns_duration_seconds{job=\"internet_dns\",phase=\"request\"}",
+          "instant": true,
+          "legendFormat": "DNS 请求",
+          "refId": "A"
+        }
+      ],
+      "title": "DNS 查询耗时",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "victoriametrics"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [
+            {
+              "options": {
+                "0": {
+                  "color": "red",
+                  "text": "断开"
+                },
+                "1": {
+                  "color": "green",
+                  "text": "已连接"
+                }
+              },
+              "type": "value"
+            }
+          ],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "red",
+                "value": null
+              },
+              {
+                "color": "green",
+                "value": 1
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 6,
+        "x": 18,
+        "y": 46
+      },
+      "id": 41,
+      "options": {
+        "colorMode": "background",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "textMode": "auto",
+        "wideLayout": true
+      },
+      "targets": [
+        {
+          "expr": "asus_router_wan_link_up{job=\"asus_wifi_clients\"}",
+          "instant": true,
+          "legendFormat": "WAN",
+          "refId": "A"
+        }
+      ],
+      "title": "WAN 状态",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "victoriametrics"
+      },
+      "description": "路由器检测到的公网 IPv4；旁边同时显示 WAN 协议。",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "fixed",
+            "fixedColor": "blue"
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 5,
+        "x": 0,
+        "y": 50
+      },
+      "id": 42,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "textMode": "name",
+        "wideLayout": true
+      },
+      "targets": [
+        {
+          "expr": "asus_router_wan_info{job=\"asus_wifi_clients\"}",
+          "instant": true,
+          "legendFormat": "{{public_ipv4}} · {{protocol}}",
+          "refId": "A"
+        }
+      ],
+      "title": "公网 IPv4",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "victoriametrics"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "fixed",
+            "fixedColor": "green"
+          },
+          "unit": "bps"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 5,
+        "x": 5,
+        "y": 50
+      },
+      "id": 43,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "textMode": "auto",
+        "wideLayout": true
+      },
+      "targets": [
+        {
+          "expr": "ifHighSpeed{job=\"asus_rt_be88u\",instance=\"$router_ip\",ifName=\"$wan_if\"} * 1000000",
+          "instant": true,
+          "legendFormat": "eth1",
+          "refId": "A"
+        }
+      ],
+      "title": "WAN 协商速度",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "victoriametrics"
+      },
+      "description": "最近 24 小时 WAN 上下线状态发生变化的次数；一次完整断线并恢复通常产生两次变化。",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "decimals": 0,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "orange",
+                "value": 1
+              },
+              {
+                "color": "red",
+                "value": 4
+              }
+            ]
+          },
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 5,
+        "x": 10,
+        "y": 50
+      },
+      "id": 44,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "textMode": "auto",
+        "wideLayout": true
+      },
+      "targets": [
+        {
+          "expr": "changes(asus_router_wan_link_up{job=\"asus_wifi_clients\"}[24h])",
+          "instant": true,
+          "legendFormat": "状态变化",
+          "refId": "A"
+        }
+      ],
+      "title": "24 小时 WAN 状态变化",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "victoriametrics"
+      },
+      "description": "当前 conntrack 条目数除以配置上限。",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "max": 1,
+          "min": 0,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "yellow",
+                "value": 0.5
+              },
+              {
+                "color": "orange",
+                "value": 0.7
+              },
+              {
+                "color": "red",
+                "value": 0.85
+              }
+            ]
+          },
+          "unit": "percentunit"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 5,
+        "x": 15,
+        "y": 50
+      },
+      "id": 45,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "textMode": "auto",
+        "wideLayout": true
+      },
+      "targets": [
+        {
+          "expr": "asus_router_conntrack_entries{job=\"asus_wifi_clients\"} / asus_router_conntrack_limit{job=\"asus_wifi_clients\"}",
+          "instant": true,
+          "legendFormat": "使用率",
+          "refId": "A"
+        }
+      ],
+      "title": "Conntrack 使用率",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "victoriametrics"
+      },
+      "description": "最近 5 分钟 ICMP 探测失败样本占比；每 30 秒探测一次，用于近似观察公网丢包或短时不可达。",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "max": 1,
+          "min": 0,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "orange",
+                "value": 0.05
+              },
+              {
+                "color": "red",
+                "value": 0.2
+              }
+            ]
+          },
+          "unit": "percentunit"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 4,
+        "x": 20,
+        "y": 50
+      },
+      "id": 46,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "textMode": "auto",
+        "wideLayout": true
+      },
+      "targets": [
+        {
+          "expr": "1 - avg_over_time(probe_success{job=\"internet_icmp\"}[5m])",
+          "instant": true,
+          "legendFormat": "探测失败率",
+          "refId": "A"
+        }
+      ],
+      "title": "5 分钟探测丢包率",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "victoriametrics"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "drawStyle": "line",
+            "fillOpacity": 8,
+            "lineWidth": 2,
+            "pointSize": 3,
+            "showPoints": "never",
+            "spanNulls": false
+          },
+          "min": 0,
+          "unit": "s"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 9,
+        "w": 12,
+        "x": 0,
+        "y": 54
+      },
+      "id": 47,
+      "options": {
+        "legend": {
+          "calcs": [
+            "lastNotNull",
+            "max"
+          ],
+          "displayMode": "table",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
+      },
+      "targets": [
+        {
+          "expr": "probe_icmp_duration_seconds{job=\"internet_icmp\",phase=\"rtt\"}",
+          "legendFormat": "ICMP RTT",
+          "refId": "A"
+        },
+        {
+          "expr": "probe_duration_seconds{job=\"internet_https\"}",
+          "legendFormat": "百度 HTTPS",
+          "refId": "B"
+        },
+        {
+          "expr": "probe_dns_duration_seconds{job=\"internet_dns\",phase=\"request\"}",
+          "legendFormat": "DNS 请求",
+          "refId": "C"
+        }
+      ],
+      "title": "互联网延迟趋势",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "victoriametrics"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "drawStyle": "line",
+            "fillOpacity": 6,
+            "lineWidth": 2,
+            "pointSize": 3,
+            "showPoints": "never",
+            "spanNulls": false
+          },
+          "min": 0,
+          "unit": "s"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 9,
+        "w": 12,
+        "x": 12,
+        "y": 54
+      },
+      "id": 48,
+      "options": {
+        "legend": {
+          "calcs": [
+            "lastNotNull",
+            "max"
+          ],
+          "displayMode": "table",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
+      },
+      "targets": [
+        {
+          "expr": "probe_http_duration_seconds{job=\"internet_https\"}",
+          "legendFormat": "{{phase}}",
+          "refId": "A"
+        }
+      ],
+      "title": "百度 HTTPS 分阶段耗时",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "victoriametrics"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "drawStyle": "line",
+            "fillOpacity": 6,
+            "lineWidth": 2,
+            "pointSize": 3,
+            "showPoints": "never",
+            "spanNulls": false
+          },
+          "min": 0,
+          "unit": "pps"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 9,
+        "w": 12,
+        "x": 0,
+        "y": 63
+      },
+      "id": 49,
+      "options": {
+        "legend": {
+          "calcs": [
+            "lastNotNull",
+            "max"
+          ],
+          "displayMode": "table",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
+      },
+      "targets": [
+        {
+          "expr": "rate(ifInErrors{job=\"asus_rt_be88u\",instance=\"$router_ip\",ifName=\"$wan_if\"}[5m])",
+          "legendFormat": "接收错误",
+          "refId": "A"
+        },
+        {
+          "expr": "rate(ifOutErrors{job=\"asus_rt_be88u\",instance=\"$router_ip\",ifName=\"$wan_if\"}[5m])",
+          "legendFormat": "发送错误",
+          "refId": "B"
+        },
+        {
+          "expr": "rate(ifInDiscards{job=\"asus_rt_be88u\",instance=\"$router_ip\",ifName=\"$wan_if\"}[5m])",
+          "legendFormat": "接收丢弃",
+          "refId": "C"
+        },
+        {
+          "expr": "rate(ifOutDiscards{job=\"asus_rt_be88u\",instance=\"$router_ip\",ifName=\"$wan_if\"}[5m])",
+          "legendFormat": "发送丢弃",
+          "refId": "D"
+        }
+      ],
+      "title": "WAN 错误包与丢弃包",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "victoriametrics"
+      },
+      "description": "WAN 实际速率除以当前端口协商速度。",
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "drawStyle": "line",
+            "fillOpacity": 8,
+            "lineWidth": 2,
+            "pointSize": 3,
+            "showPoints": "never",
+            "spanNulls": false
+          },
+          "max": 1,
+          "min": 0,
+          "unit": "percentunit"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 9,
+        "w": 12,
+        "x": 12,
+        "y": 63
+      },
+      "id": 50,
+      "options": {
+        "legend": {
+          "calcs": [
+            "lastNotNull",
+            "max"
+          ],
+          "displayMode": "table",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
+      },
+      "targets": [
+        {
+          "expr": "rate(ifHCInOctets{job=\"asus_rt_be88u\",instance=\"$router_ip\",ifName=\"$wan_if\"}[2m]) * 8 / (ifHighSpeed{job=\"asus_rt_be88u\",instance=\"$router_ip\",ifName=\"$wan_if\"} * 1000000)",
+          "legendFormat": "下载占用",
+          "refId": "A"
+        },
+        {
+          "expr": "rate(ifHCOutOctets{job=\"asus_rt_be88u\",instance=\"$router_ip\",ifName=\"$wan_if\"}[2m]) * 8 / (ifHighSpeed{job=\"asus_rt_be88u\",instance=\"$router_ip\",ifName=\"$wan_if\"} * 1000000)",
+          "legendFormat": "上传占用",
+          "refId": "B"
+        }
+      ],
+      "title": "WAN 端口利用率",
+      "type": "timeseries"
+    },
+    {
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 72
+      },
+      "id": 51,
+      "panels": [],
+      "title": "无线环境与设备质量",
+      "type": "row"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "victoriametrics"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "fixed",
+            "fixedColor": "blue"
+          },
+          "decimals": 0,
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 6,
+        "x": 0,
+        "y": 73
+      },
+      "id": 52,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "textMode": "auto",
+        "wideLayout": true
+      },
+      "targets": [
+        {
+          "expr": "asus_router_wifi_radio_channel{job=\"asus_wifi_clients\",band=\"2.4G\"}",
+          "instant": true,
+          "legendFormat": "2.4 GHz",
+          "refId": "A"
+        }
+      ],
+      "title": "2.4 GHz 频道",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "victoriametrics"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "fixed",
+            "fixedColor": "purple"
+          },
+          "decimals": 0,
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 6,
+        "x": 6,
+        "y": 73
+      },
+      "id": 53,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "textMode": "auto",
+        "wideLayout": true
+      },
+      "targets": [
+        {
+          "expr": "asus_router_wifi_radio_channel{job=\"asus_wifi_clients\",band=\"5G\"}",
+          "instant": true,
+          "legendFormat": "5 GHz",
+          "refId": "A"
+        }
+      ],
+      "title": "5 GHz 频道",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "victoriametrics"
+      },
+      "description": "由 Broadcom chanim 空闲百分比计算为 1 - idle。",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "max": 1,
+          "min": 0,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "orange",
+                "value": 0.6
+              },
+              {
+                "color": "red",
+                "value": 0.8
+              }
+            ]
+          },
+          "unit": "percentunit"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 6,
+        "x": 12,
+        "y": 73
+      },
+      "id": 54,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "textMode": "auto",
+        "wideLayout": true
+      },
+      "targets": [
+        {
+          "expr": "asus_router_wifi_radio_channel_utilization_ratio{job=\"asus_wifi_clients\",band=\"2.4G\"}",
+          "instant": true,
+          "legendFormat": "2.4 GHz",
+          "refId": "A"
+        }
+      ],
+      "title": "2.4 GHz 频道利用率",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "victoriametrics"
+      },
+      "description": "由 Broadcom chanim 空闲百分比计算为 1 - idle。",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "max": 1,
+          "min": 0,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "orange",
+                "value": 0.6
+              },
+              {
+                "color": "red",
+                "value": 0.8
+              }
+            ]
+          },
+          "unit": "percentunit"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 6,
+        "x": 18,
+        "y": 73
+      },
+      "id": 55,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "textMode": "auto",
+        "wideLayout": true
+      },
+      "targets": [
+        {
+          "expr": "asus_router_wifi_radio_channel_utilization_ratio{job=\"asus_wifi_clients\",band=\"5G\"}",
+          "instant": true,
+          "legendFormat": "5 GHz",
+          "refId": "A"
+        }
+      ],
+      "title": "5 GHz 频道利用率",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "victoriametrics"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "drawStyle": "line",
+            "fillOpacity": 8,
+            "lineWidth": 2,
+            "pointSize": 3,
+            "showPoints": "never",
+            "spanNulls": false
+          },
+          "max": 1,
+          "min": 0,
+          "unit": "percentunit"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 9,
+        "w": 8,
+        "x": 0,
+        "y": 77
+      },
+      "id": 56,
+      "options": {
+        "legend": {
+          "calcs": [
+            "lastNotNull",
+            "max"
+          ],
+          "displayMode": "table",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
+      },
+      "targets": [
+        {
+          "expr": "asus_router_wifi_radio_channel_utilization_ratio{job=\"asus_wifi_clients\"}",
+          "legendFormat": "{{band}}",
+          "refId": "A"
+        }
+      ],
+      "title": "无线频道利用率趋势",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "victoriametrics"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "drawStyle": "line",
+            "fillOpacity": 5,
+            "lineWidth": 2,
+            "pointSize": 3,
+            "showPoints": "never",
+            "spanNulls": false
+          },
+          "unit": "dBm"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 9,
+        "w": 8,
+        "x": 8,
+        "y": 77
+      },
+      "id": 57,
+      "options": {
+        "legend": {
+          "calcs": [
+            "lastNotNull",
+            "min"
+          ],
+          "displayMode": "table",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
+      },
+      "targets": [
+        {
+          "expr": "asus_router_wifi_radio_noise_dbm{job=\"asus_wifi_clients\"}",
+          "legendFormat": "{{band}}",
+          "refId": "A"
+        }
+      ],
+      "title": "无线环境噪声",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "victoriametrics"
+      },
+      "description": "SNR = RSSI - 平均噪声底；数值越低越需要关注。",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "min": 0,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "red",
+                "value": null
+              },
+              {
+                "color": "orange",
+                "value": 20
+              },
+              {
+                "color": "green",
+                "value": 30
+              }
+            ]
+          },
+          "unit": "dB"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 9,
+        "w": 8,
+        "x": 16,
+        "y": 77
+      },
+      "id": 58,
+      "options": {
+        "displayMode": "gradient",
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": false
+        },
+        "orientation": "horizontal",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showUnfilled": true,
+        "valueMode": "color"
+      },
+      "targets": [
+        {
+          "expr": "bottomk(15, max by (mac,name,band) (asus_wifi_station_snr_db{job=\"asus_wifi_clients\"}))",
+          "instant": true,
+          "legendFormat": "{{name}} · {{band}}",
+          "refId": "A"
+        }
+      ],
+      "title": "SNR 最低设备 Top 15",
+      "type": "bargauge"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "victoriametrics"
+      },
+      "description": "重试尝试数 /（成功发送包数 + 重试尝试数），使用 5 分钟速率计算。",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "max": 1,
+          "min": 0,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "orange",
+                "value": 0.15
+              },
+              {
+                "color": "red",
+                "value": 0.3
+              }
+            ]
+          },
+          "unit": "percentunit"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 9,
+        "w": 12,
+        "x": 0,
+        "y": 86
+      },
+      "id": 59,
+      "options": {
+        "displayMode": "gradient",
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": false
+        },
+        "orientation": "horizontal",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showUnfilled": true,
+        "valueMode": "color"
+      },
+      "targets": [
+        {
+          "expr": "topk(15, sum by (mac,name,band) (rate(asus_wifi_station_tx_retries_total{job=\"asus_wifi_clients\"}[5m])) / clamp_min(sum by (mac,name,band) (rate(asus_wifi_station_tx_retries_total{job=\"asus_wifi_clients\"}[5m]) + rate(asus_wifi_station_tx_packets_sent_total{job=\"asus_wifi_clients\"}[5m])), 0.001))",
+          "instant": true,
+          "legendFormat": "{{name}} · {{band}}",
+          "refId": "A"
+        }
+      ],
+      "title": "无线重试占比 Top 15",
+      "type": "bargauge"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "victoriametrics"
+      },
+      "description": "当前无线关联持续时间；设备重连后会重新从零开始。",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "continuous-GrYlRd"
+          },
+          "min": 0,
+          "unit": "s"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 9,
+        "w": 12,
+        "x": 12,
+        "y": 86
+      },
+      "id": 60,
+      "options": {
+        "displayMode": "gradient",
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": false
+        },
+        "orientation": "horizontal",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showUnfilled": true,
+        "valueMode": "color"
+      },
+      "targets": [
+        {
+          "expr": "sort_desc(max by (mac,name,band) (asus_wifi_station_connected_seconds{job=\"asus_wifi_clients\"}))",
+          "instant": true,
+          "legendFormat": "{{name}} · {{band}}",
+          "refId": "A"
+        }
+      ],
+      "title": "当前无线连接时长",
+      "type": "bargauge"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "victoriametrics"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "custom": {
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "dBm",
+            "axisPlacement": "auto",
+            "drawStyle": "line",
+            "fillOpacity": 5,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "lineInterpolation": "linear",
+            "lineWidth": 2,
+            "pointSize": 3,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "never",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "line"
+            }
+          },
+          "max": -20,
+          "min": -100,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "red",
+                "value": null
+              },
+              {
+                "color": "orange",
+                "value": -75
+              },
+              {
+                "color": "green",
+                "value": -60
+              }
+            ]
+          },
+          "unit": "dBm"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 95
+      },
+      "id": 8,
+      "options": {
+        "legend": {
+          "calcs": [
+            "lastNotNull",
+            "min"
+          ],
+          "displayMode": "table",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "asc"
+        }
+      },
+      "targets": [
+        {
+          "expr": "max by (mac,name,band) (asus_wifi_station_rssi_dbm{job=\"asus_wifi_clients\",mac=~\"$client\"})",
+          "legendFormat": "{{name}} · {{band}}",
+          "refId": "A"
+        }
+      ],
+      "title": "无线信号强度",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "victoriametrics"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "drawStyle": "line",
+            "fillOpacity": 5,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "lineInterpolation": "linear",
+            "lineWidth": 2,
+            "pointSize": 3,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "never",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "unit": "bps"
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byFrameRefID",
+              "options": "A"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "blue",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byFrameRefID",
+              "options": "B"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "orange",
+                  "mode": "fixed"
+                }
+              },
+              {
+                "id": "custom.lineStyle",
+                "value": {
+                  "dash": [
+                    10,
+                    5
+                  ],
+                  "fill": "dash"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 95
+      },
+      "id": 9,
+      "options": {
+        "legend": {
+          "calcs": [
+            "lastNotNull",
+            "max"
+          ],
+          "displayMode": "table",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
+      },
+      "targets": [
+        {
+          "expr": "max by (mac,name) (asus_wifi_station_tx_rate_bps{job=\"asus_wifi_clients\",mac=~\"$client\"})",
+          "legendFormat": "{{name}} AP→设备",
+          "refId": "A"
+        },
+        {
+          "expr": "max by (mac,name) (asus_wifi_station_rx_rate_bps{job=\"asus_wifi_clients\",mac=~\"$client\"})",
+          "legendFormat": "{{name}} 设备→AP",
+          "refId": "B"
+        }
+      ],
+      "title": "无线协商速率",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "victoriametrics"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "fixed",
+            "fixedColor": "orange"
+          },
+          "custom": {
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "重试/秒",
+            "axisPlacement": "auto",
+            "drawStyle": "line",
+            "fillOpacity": 8,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "lineInterpolation": "linear",
+            "lineWidth": 2,
+            "pointSize": 3,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "never",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "min": 0,
+          "unit": "pps"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 103
+      },
+      "id": 10,
+      "options": {
+        "legend": {
+          "calcs": [
+            "lastNotNull",
+            "max"
+          ],
+          "displayMode": "table",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
+      },
+      "targets": [
+        {
+          "expr": "sum by (mac,name) (rate(asus_wifi_station_tx_retries_total{job=\"asus_wifi_clients\",mac=~\"$client\"}[$__rate_interval]))",
+          "legendFormat": "{{name}}",
+          "refId": "A"
+        }
+      ],
+      "title": "无线发送重试率",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "victoriametrics"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "red",
+                "value": null
+              },
+              {
+                "color": "orange",
+                "value": -75
+              },
+              {
+                "color": "green",
+                "value": -60
+              }
+            ]
+          },
+          "unit": "dBm"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 103
+      },
+      "id": 11,
+      "options": {
+        "displayMode": "gradient",
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": false
+        },
+        "minVizHeight": 10,
+        "minVizWidth": 0,
+        "namePlacement": "auto",
+        "orientation": "horizontal",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showUnfilled": true,
+        "sizing": "auto",
+        "valueMode": "color"
+      },
+      "targets": [
+        {
+          "expr": "sort_desc(max by (mac,name,band) (asus_wifi_station_rssi_dbm{job=\"asus_wifi_clients\",mac=~\"$client\"}))",
+          "instant": true,
+          "legendFormat": "{{name}} · {{band}}",
+          "refId": "A"
+        }
+      ],
+      "title": "当前设备信号",
+      "type": "bargauge"
+    },
+    {
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 111
+      },
+      "id": 14,
+      "panels": [],
+      "title": "历史流量分析",
+      "type": "row"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "victoriametrics"
+      },
+      "description": "Traffic Analyzer RX，按完整小时桶汇总。",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "fixed",
+            "fixedColor": "blue"
+          },
+          "unit": "bytes"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 8,
+        "x": 0,
+        "y": 112
+      },
+      "id": 15,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "textMode": "auto",
+        "wideLayout": true
+      },
+      "targets": [
+        {
+          "expr": "sum(sum_over_time(asus_traffic_analyzer_rx_bytes{job=\"asus_traffic_analyzer\",mac=~\"$client\"}[24h]))",
+          "instant": true,
+          "legendFormat": "下载",
+          "refId": "A"
+        }
+      ],
+      "title": "最近 24 小时下载",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "victoriametrics"
+      },
+      "description": "Traffic Analyzer TX，按完整小时桶汇总。",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "fixed",
+            "fixedColor": "orange"
+          },
+          "unit": "bytes"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 8,
+        "x": 8,
+        "y": 112
+      },
+      "id": 16,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "textMode": "auto",
+        "wideLayout": true
+      },
+      "targets": [
+        {
+          "expr": "sum(sum_over_time(asus_traffic_analyzer_tx_bytes{job=\"asus_traffic_analyzer\",mac=~\"$client\"}[24h]))",
+          "instant": true,
+          "legendFormat": "上传",
+          "refId": "A"
+        }
+      ],
+      "title": "最近 24 小时上传",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "victoriametrics"
+      },
+      "description": "下载与上传之和；最后一个未完成小时不会导入。",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "fixed",
+            "fixedColor": "dark-blue"
+          },
+          "unit": "bytes"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 8,
+        "x": 16,
+        "y": 112
+      },
+      "id": 17,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "textMode": "auto",
+        "wideLayout": true
+      },
+      "targets": [
+        {
+          "expr": "sum(sum_over_time(asus_traffic_analyzer_rx_bytes{job=\"asus_traffic_analyzer\",mac=~\"$client\"}[24h])) + sum(sum_over_time(asus_traffic_analyzer_tx_bytes{job=\"asus_traffic_analyzer\",mac=~\"$client\"}[24h]))",
+          "instant": true,
+          "legendFormat": "总流量",
+          "refId": "A"
+        }
+      ],
+      "title": "最近 24 小时总流量",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "victoriametrics"
+      },
+      "description": "每个点是该完整小时内的 Traffic Analyzer 字节数换算出的小时平均速率。",
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "小时平均",
+            "axisPlacement": "auto",
+            "drawStyle": "line",
+            "fillOpacity": 8,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "lineInterpolation": "stepAfter",
+            "lineWidth": 2,
+            "pointSize": 4,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "unit": "bps"
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byFrameRefID",
+              "options": "A"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "blue",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byFrameRefID",
+              "options": "B"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "orange",
+                  "mode": "fixed"
+                }
+              },
+              {
+                "id": "custom.lineStyle",
+                "value": {
+                  "dash": [
+                    10,
+                    5
+                  ],
+                  "fill": "dash"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 9,
+        "w": 16,
+        "x": 0,
+        "y": 116
+      },
+      "id": 18,
+      "options": {
+        "legend": {
+          "calcs": [
+            "lastNotNull",
+            "max",
+            "sum"
+          ],
+          "displayMode": "table",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
+      },
+      "targets": [
+        {
+          "expr": "sum(asus_traffic_analyzer_rx_bytes{job=\"asus_traffic_analyzer\",mac=~\"$client\"}) * 8 / 3600",
+          "legendFormat": "所选设备下载",
+          "refId": "A"
+        },
+        {
+          "expr": "sum(asus_traffic_analyzer_tx_bytes{job=\"asus_traffic_analyzer\",mac=~\"$client\"}) * 8 / 3600",
+          "legendFormat": "所选设备上传",
+          "refId": "B"
+        }
+      ],
+      "title": "设备互联网流量历史",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "victoriametrics"
+      },
+      "description": "最近 24 个完整小时的上传与下载总和。",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "continuous-BlYlRd"
+          },
+          "min": 0,
+          "unit": "bytes"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 9,
+        "w": 8,
+        "x": 16,
+        "y": 116
+      },
+      "id": 19,
+      "options": {
+        "displayMode": "gradient",
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": false
+        },
+        "minVizHeight": 10,
+        "minVizWidth": 0,
+        "namePlacement": "auto",
+        "orientation": "horizontal",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showUnfilled": true,
+        "sizing": "auto",
+        "valueMode": "color"
+      },
+      "targets": [
+        {
+          "expr": "topk(15, (sum by (mac) (sum_over_time(asus_traffic_analyzer_rx_bytes{job=\"asus_traffic_analyzer\"}[24h])) + sum by (mac) (sum_over_time(asus_traffic_analyzer_tx_bytes{job=\"asus_traffic_analyzer\"}[24h]))) * on (mac) group_left(name) max by (mac,name) (asus_device_name_info{job=\"asus_wifi_clients\"}))",
+          "instant": true,
+          "legendFormat": "{{name}}",
+          "refId": "A"
+        }
+      ],
+      "title": "24 小时互联网流量 Top 15",
+      "type": "bargauge"
+    },
+    {
+      "gridPos": {
+        "h": 3,
+        "w": 24,
+        "x": 0,
+        "y": 125
+      },
+      "id": 20,
+      "options": {
+        "code": {
+          "language": "plaintext",
+          "showLineNumbers": false,
+          "showMiniMap": false
+        },
+        "content": "Traffic Analyzer 数据来自路由器本地 SQLite：TX 对应上传，RX 对应下载。导入器只读取已完成小时，避免把当前小时的多次部分写入重复计算；历史数据与上方无线驱动实时链路流量是两套不同口径。",
+        "mode": "markdown"
+      },
+      "pluginVersion": "12.4.3",
+      "title": "历史指标说明",
+      "type": "text"
+    },
+    {
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 128
+      },
+      "id": 61,
+      "panels": [],
+      "title": "监控系统详细健康",
+      "type": "row"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "victoriametrics"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "decimals": 0,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "orange",
+                "value": 1
+              },
+              {
+                "color": "red",
+                "value": 5
+              }
+            ]
+          },
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 6,
+        "x": 0,
+        "y": 129
+      },
+      "id": 64,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "textMode": "auto",
+        "wideLayout": true
+      },
+      "targets": [
+        {
+          "expr": "increase(asus_wifi_exporter_collection_errors_total{job=\"asus_wifi_clients\"}[24h])",
+          "instant": true,
+          "legendFormat": "失败次数",
+          "refId": "A"
+        }
+      ],
+      "title": "24 小时采集失败",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "victoriametrics"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [
+            {
+              "options": {
+                "0": {
+                  "color": "red",
+                  "text": "异常"
+                },
+                "1": {
+                  "color": "green",
+                  "text": "正常"
+                }
+              },
+              "type": "value"
+            }
+          ],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "red",
+                "value": null
+              },
+              {
+                "color": "green",
+                "value": 1
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 6,
+        "x": 6,
+        "y": 129
+      },
+      "id": 65,
+      "options": {
+        "colorMode": "background",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "textMode": "auto",
+        "wideLayout": true
+      },
+      "targets": [
+        {
+          "expr": "up{job=\"blackbox_exporter\"}",
+          "instant": true,
+          "legendFormat": "Blackbox",
+          "refId": "A"
+        }
+      ],
+      "title": "Blackbox Exporter",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "victoriametrics"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [
+            {
+              "options": {
+                "0": {
+                  "color": "red",
+                  "text": "异常"
+                },
+                "1": {
+                  "color": "green",
+                  "text": "正常"
+                }
+              },
+              "type": "value"
+            }
+          ],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "red",
+                "value": null
+              },
+              {
+                "color": "green",
+                "value": 1
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 6,
+        "x": 12,
+        "y": 129
+      },
+      "id": 66,
+      "options": {
+        "colorMode": "background",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "textMode": "auto",
+        "wideLayout": true
+      },
+      "targets": [
+        {
+          "expr": "probe_success{job=\"monitoring_http_health\",instance=\"http://127.0.0.1:8428/-/healthy\"}",
+          "instant": true,
+          "legendFormat": "VictoriaMetrics",
+          "refId": "A"
+        }
+      ],
+      "title": "VictoriaMetrics",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "victoriametrics"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [
+            {
+              "options": {
+                "0": {
+                  "color": "red",
+                  "text": "异常"
+                },
+                "1": {
+                  "color": "green",
+                  "text": "正常"
+                }
+              },
+              "type": "value"
+            }
+          ],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "red",
+                "value": null
+              },
+              {
+                "color": "green",
+                "value": 1
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 6,
+        "x": 18,
+        "y": 129
+      },
+      "id": 67,
+      "options": {
+        "colorMode": "background",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "textMode": "auto",
+        "wideLayout": true
+      },
+      "targets": [
+        {
+          "expr": "probe_success{job=\"monitoring_http_health\",instance=\"http://127.0.0.1:3000/api/health\"}",
+          "instant": true,
+          "legendFormat": "Grafana",
+          "refId": "A"
+        }
+      ],
+      "title": "Grafana",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "victoriametrics"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "drawStyle": "line",
+            "fillOpacity": 8,
+            "lineWidth": 2,
+            "pointSize": 3,
+            "showPoints": "never",
+            "spanNulls": false
+          },
+          "min": 0,
+          "unit": "s"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 9,
+        "w": 12,
+        "x": 0,
+        "y": 133
+      },
+      "id": 68,
+      "options": {
+        "legend": {
+          "calcs": [
+            "lastNotNull",
+            "max"
+          ],
+          "displayMode": "table",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
+      },
+      "targets": [
+        {
+          "expr": "asus_wifi_exporter_collection_duration_seconds{job=\"asus_wifi_clients\"}",
+          "legendFormat": "SSH 采集耗时",
+          "refId": "A"
+        }
+      ],
+      "title": "SSH 采集耗时",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "victoriametrics"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "drawStyle": "line",
+            "fillOpacity": 6,
+            "lineWidth": 2,
+            "pointSize": 3,
+            "showPoints": "never",
+            "spanNulls": false
+          },
+          "min": 0,
+          "unit": "s"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 9,
+        "w": 12,
+        "x": 12,
+        "y": 133
+      },
+      "id": 69,
+      "options": {
+        "legend": {
+          "calcs": [
+            "lastNotNull",
+            "max"
+          ],
+          "displayMode": "table",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
+      },
+      "targets": [
+        {
+          "expr": "probe_duration_seconds{job=\"monitoring_http_health\"}",
+          "legendFormat": "{{instance}}",
+          "refId": "A"
+        }
+      ],
+      "title": "监控服务响应耗时",
+      "type": "timeseries"
+    }
+  ],
+  "refresh": "30s",
+  "schemaVersion": 41,
+  "tags": [
+    "asus",
+    "rt-be88u",
+    "wifi",
+    "ssh-exporter"
+  ],
+  "templating": {
+    "list": [
+      {
+        "current": {
+          "selected": true,
+          "text": "192.168.1.1",
+          "value": "192.168.1.1"
+        },
+        "hide": 0,
+        "label": "路由器 IP",
+        "name": "router_ip",
+        "options": [
+          {
+            "selected": true,
+            "text": "192.168.1.1",
+            "value": "192.168.1.1"
+          }
+        ],
+        "query": "192.168.1.1",
+        "skipUrlSync": false,
+        "type": "textbox"
+      },
+      {
+        "current": {
+          "selected": true,
+          "text": "eth1",
+          "value": "eth1"
+        },
+        "hide": 0,
+        "label": "WAN 接口",
+        "name": "wan_if",
+        "options": [
+          {
+            "selected": true,
+            "text": "eth1",
+            "value": "eth1"
+          }
+        ],
+        "query": "eth1",
+        "skipUrlSync": false,
+        "type": "textbox"
+      },
+      {
+        "current": {
+          "selected": true,
+          "text": "http://192.168.1.10:9102",
+          "value": "http://192.168.1.10:9102"
+        },
+        "hide": 0,
+        "label": "设备管理 URL",
+        "name": "management_url",
+        "options": [
+          {
+            "selected": true,
+            "text": "http://192.168.1.10:9102",
+            "value": "http://192.168.1.10:9102"
+          }
+        ],
+        "query": "http://192.168.1.10:9102",
+        "skipUrlSync": false,
+        "type": "textbox"
+      },
+      {
+        "allValue": ".*",
+        "current": {
+          "selected": true,
+          "text": [
+            "All"
+          ],
+          "value": [
+            "$__all"
+          ]
+        },
+        "datasource": {
+          "type": "prometheus",
+          "uid": "victoriametrics"
+        },
+        "definition": "query_result(asus_device_name_info{job=\"asus_wifi_clients\"})",
+        "includeAll": true,
+        "label": "设备（在线及历史）",
+        "multi": true,
+        "name": "client",
+        "options": [],
+        "query": {
+          "query": "query_result(asus_device_name_info{job=\"asus_wifi_clients\"})",
+          "refId": "StandardVariableQuery"
+        },
+        "refresh": 2,
+        "regex": "/.*mac=\"(?<value>[^\"]+)\".*name=\"(?<text>[^\"]+)\".*/",
+        "sort": 1,
+        "type": "query"
+      }
+    ]
+  },
+  "time": {
+    "from": "now-24h",
+    "to": "now"
+  },
+  "timepicker": {},
+  "timezone": "browser",
+  "title": "华硕路由器网络总览",
+  "uid": "asus-router-network-overview",
+  "version": 10,
+  "weekStart": "",
+  "description": "Asuswrt-Merlin 路由器网络运行摘要、设备活动、系统健康、互联网质量、无线质量与历史流量。"
+}

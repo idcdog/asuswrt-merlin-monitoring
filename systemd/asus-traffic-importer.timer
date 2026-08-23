@@ -1,0 +1,12 @@
+[Unit]
+Description=Check Asuswrt Traffic Analyzer for new hourly data
+
+[Timer]
+OnBootSec=2min
+OnUnitActiveSec=10min
+RandomizedDelaySec=30s
+Persistent=true
+Unit=asus-traffic-importer.service
+
+[Install]
+WantedBy=timers.target

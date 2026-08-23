@@ -1,0 +1,112 @@
+global:
+  scrape_interval: 15s
+
+scrape_configs:
+  - job_name: asus_rt_be88u
+    scrape_interval: 30s
+    scrape_timeout: 20s
+    metrics_path: /snmp
+    params:
+      auth: [asus_router_v2]
+      module: [if_mib]
+    static_configs:
+      - targets: [192.168.1.1]
+        labels:
+          device: ASUS-Router
+    relabel_configs:
+      - source_labels: [__address__]
+        target_label: __param_target
+      - source_labels: [__param_target]
+        target_label: instance
+      - target_label: __address__
+        replacement: 127.0.0.1:9116
+
+  - job_name: snmp_exporter
+    static_configs:
+      - targets: [127.0.0.1:9116]
+
+  - job_name: asus_wifi_clients
+    scrape_interval: 30s
+    scrape_timeout: 10s
+    static_configs:
+      - targets: [127.0.0.1:9101]
+        labels:
+          device: ASUS-Router
+
+  - job_name: blackbox_exporter
+    scrape_interval: 30s
+    static_configs:
+      - targets: [127.0.0.1:9115]
+
+  - job_name: internet_https
+    scrape_interval: 30s
+    scrape_timeout: 8s
+    metrics_path: /probe
+    params:
+      module: [http_2xx_ipv4]
+    static_configs:
+      - targets: [https://www.baidu.com/]
+        labels:
+          probe_name: Internet HTTPS
+    relabel_configs:
+      - source_labels: [__address__]
+        target_label: __param_target
+      - source_labels: [__param_target]
+        target_label: instance
+      - target_label: __address__
+        replacement: 127.0.0.1:9115
+
+  - job_name: internet_icmp
+    scrape_interval: 30s
+    scrape_timeout: 5s
+    metrics_path: /probe
+    params:
+      module: [icmp_ipv4]
+    static_configs:
+      - targets: [223.5.5.5]
+        labels:
+          probe_name: Public DNS ICMP
+    relabel_configs:
+      - source_labels: [__address__]
+        target_label: __param_target
+      - source_labels: [__param_target]
+        target_label: instance
+      - target_label: __address__
+        replacement: 127.0.0.1:9115
+
+  - job_name: internet_dns
+    scrape_interval: 30s
+    scrape_timeout: 5s
+    metrics_path: /probe
+    params:
+      module: [dns_baidu_ipv4]
+    static_configs:
+      - targets: [192.168.1.1]
+        labels:
+          probe_name: Router DNS
+    relabel_configs:
+      - source_labels: [__address__]
+        target_label: __param_target
+      - source_labels: [__param_target]
+        target_label: instance
+      - target_label: __address__
+        replacement: 127.0.0.1:9115
+
+  - job_name: monitoring_http_health
+    scrape_interval: 30s
+    scrape_timeout: 5s
+    metrics_path: /probe
+    params:
+      module: [http_2xx_ipv4]
+    static_configs:
+      - targets:
+          - http://127.0.0.1:8428/-/healthy
+          - http://127.0.0.1:3000/api/health
+          - http://127.0.0.1:9102/
+    relabel_configs:
+      - source_labels: [__address__]
+        target_label: __param_target
+      - source_labels: [__param_target]
+        target_label: instance
+      - target_label: __address__
+        replacement: 127.0.0.1:9115

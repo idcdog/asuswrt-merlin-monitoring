@@ -1,0 +1,21 @@
+[Unit]
+Description=Import Asuswrt Traffic Analyzer device history into VictoriaMetrics
+After=network-online.target victoria.service
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+User=root
+Group=root
+EnvironmentFile=-/etc/default/asus-router-monitoring
+Environment=STATE_FILE=/var/lib/asus-traffic-importer/state.json
+ExecStart=/usr/local/bin/asus-traffic-importer
+StateDirectory=asus-traffic-importer
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=read-only
+ProtectKernelTunables=true
+ProtectKernelModules=true
+ProtectControlGroups=true
+LockPersonality=true

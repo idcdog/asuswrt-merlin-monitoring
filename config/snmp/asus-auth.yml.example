@@ -1,0 +1,7 @@
+auths:
+  asus_router_v2:
+    community: CHANGE_ME
+    security_level: noAuthNoPriv
+    auth_protocol: MD5
+    priv_protocol: DES
+    version: 2

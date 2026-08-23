@@ -1,0 +1,15 @@
+__pycache__/
+*.py[cod]
+.DS_Store
+.env
+*.local
+device-names.json
+!examples/device-names.json
+state.json
+asus-auth.yml
+snmp-community.txt
+*.key
+*.pem
+*.crt
+*.db
+data/

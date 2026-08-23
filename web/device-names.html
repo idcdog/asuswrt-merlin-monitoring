@@ -1,0 +1,230 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>ASUS 路由器设备名称管理</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #0b0f14;
+      --panel: #121821;
+      --line: #253040;
+      --text: #edf2f7;
+      --muted: #8fa0b4;
+      --blue: #4d9fff;
+      --green: #54d49a;
+      --red: #ff6b7a;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: radial-gradient(circle at 80% 0, #16273c 0, transparent 32rem), var(--bg);
+      color: var(--text);
+      font: 14px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+    main { width: min(1480px, calc(100% - 32px)); margin: 0 auto; padding: 40px 0 64px; }
+    header { display: flex; align-items: flex-end; justify-content: space-between; gap: 24px; margin-bottom: 28px; }
+    .eyebrow { margin: 0 0 8px; color: var(--blue); font-size: 12px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; }
+    h1 { margin: 0; font-size: clamp(26px, 4vw, 42px); line-height: 1.1; letter-spacing: -.03em; }
+    .subtitle { margin: 12px 0 0; color: var(--muted); max-width: 760px; }
+    .summary { display: flex; gap: 10px; flex-wrap: wrap; justify-content: flex-end; }
+    .chip { border: 1px solid var(--line); border-radius: 999px; background: #101722cc; padding: 7px 12px; color: var(--muted); white-space: nowrap; }
+    .chip strong { color: var(--text); font-variant-numeric: tabular-nums; }
+    .toolbar { display: grid; grid-template-columns: minmax(220px, 1fr) auto auto; gap: 12px; margin-bottom: 14px; }
+    input, button { font: inherit; }
+    .search, .alias-input {
+      width: 100%; border: 1px solid var(--line); border-radius: 8px; background: #0d131b; color: var(--text); outline: none;
+    }
+    .search { height: 42px; padding: 0 14px; }
+    .alias-input { min-width: 180px; height: 34px; padding: 0 10px; }
+    .search:focus, .alias-input:focus { border-color: var(--blue); box-shadow: 0 0 0 3px #4d9fff1f; }
+    button { border: 1px solid var(--line); border-radius: 8px; background: #182231; color: var(--text); padding: 8px 12px; cursor: pointer; }
+    button:hover { border-color: #44536a; background: #202c3d; }
+    button.primary { border-color: #3389ed; background: #2577d4; }
+    button.primary:hover { background: #3188e9; }
+    button.ghost { color: var(--muted); background: transparent; }
+    button:disabled { cursor: wait; opacity: .55; }
+    .table-wrap { overflow: auto; border: 1px solid var(--line); border-radius: 12px; background: #101620d9; box-shadow: 0 18px 60px #0004; }
+    table { width: 100%; border-collapse: collapse; min-width: 1080px; }
+    th { position: sticky; top: 0; z-index: 1; padding: 12px 14px; background: #151d29; color: var(--muted); font-size: 12px; text-align: left; letter-spacing: .04em; }
+    td { padding: 11px 14px; border-top: 1px solid #202a38; vertical-align: middle; }
+    tr:hover td { background: #141c27; }
+    .status { display: inline-flex; align-items: center; gap: 7px; white-space: nowrap; }
+    .dot { width: 8px; height: 8px; border-radius: 50%; background: #5d6877; }
+    .online .dot { background: var(--green); box-shadow: 0 0 0 4px #54d49a19; }
+    .online { color: var(--green); }
+    .device-name { font-weight: 650; }
+    .original, .mono, .vendor { color: var(--muted); }
+    .mono { font: 12px/1.4 ui-monospace, SFMono-Regular, Menlo, monospace; white-space: nowrap; }
+    .actions { display: flex; gap: 7px; }
+    .empty { padding: 42px; text-align: center; color: var(--muted); }
+    .toast { position: fixed; right: 20px; bottom: 20px; max-width: 400px; padding: 12px 16px; border: 1px solid #316b52; border-radius: 9px; background: #123325; box-shadow: 0 14px 40px #0008; opacity: 0; transform: translateY(10px); pointer-events: none; transition: .18s ease; }
+    .toast.error { border-color: #8a3944; background: #401a20; }
+    .toast.show { opacity: 1; transform: none; }
+    footer { margin-top: 14px; color: var(--muted); font-size: 12px; }
+    @media (max-width: 760px) {
+      main { width: min(100% - 20px, 1480px); padding-top: 24px; }
+      header { align-items: flex-start; flex-direction: column; }
+      .summary { justify-content: flex-start; }
+      .toolbar { grid-template-columns: 1fr 1fr; }
+      .search { grid-column: 1 / -1; }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <div>
+        <p class="eyebrow">ASUS ROUTER · TRUSTED LAN ONLY</p>
+        <h1>设备名称管理</h1>
+        <p class="subtitle">按 MAC 地址设置稳定别名。保存后，SSH 采集器和 Grafana 将优先显示这里的名称。</p>
+      </div>
+      <div class="summary">
+        <span class="chip">设备 <strong id="deviceCount">—</strong></span>
+        <span class="chip">在线 <strong id="onlineCount">—</strong></span>
+        <span class="chip">已命名 <strong id="aliasCount">—</strong></span>
+      </div>
+    </header>
+
+    <section class="toolbar" aria-label="设备筛选">
+      <input id="search" class="search" type="search" placeholder="搜索设备名称、MAC、IP 或厂商…" autocomplete="off">
+      <button id="onlineOnly" class="ghost" type="button">仅看在线</button>
+      <button id="refresh" type="button">刷新设备</button>
+    </section>
+
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr><th>状态</th><th>显示名称</th><th>原始名称</th><th>MAC</th><th>IP</th><th>频段</th><th>厂商</th><th>操作</th></tr>
+        </thead>
+        <tbody id="devices"><tr><td class="empty" colspan="8">正在读取设备列表…</td></tr></tbody>
+      </table>
+    </div>
+    <footer>名称保存在监控服务器，不会写入路由器。设备启用随机 MAC 后，需要为新的 MAC 重新设置名称。</footer>
+  </main>
+  <div id="toast" class="toast" role="status"></div>
+
+  <script>
+    const state = { devices: [], onlineOnly: false };
+    const elements = {
+      rows: document.querySelector('#devices'), search: document.querySelector('#search'),
+      onlineOnly: document.querySelector('#onlineOnly'), refresh: document.querySelector('#refresh'),
+      deviceCount: document.querySelector('#deviceCount'), onlineCount: document.querySelector('#onlineCount'),
+      aliasCount: document.querySelector('#aliasCount'), toast: document.querySelector('#toast')
+    };
+
+    function toast(message, error = false) {
+      elements.toast.textContent = message;
+      elements.toast.className = `toast ${error ? 'error' : ''} show`;
+      clearTimeout(toast.timer);
+      toast.timer = setTimeout(() => elements.toast.className = 'toast', 2600);
+    }
+
+    async function request(url, options = {}) {
+      const response = await fetch(url, { cache: 'no-store', ...options });
+      const body = await response.json();
+      if (!response.ok) throw new Error(body.error || `请求失败 (${response.status})`);
+      return body;
+    }
+
+    function cell(text, className = '') {
+      const node = document.createElement('td');
+      node.textContent = text || '—';
+      if (className) node.className = className;
+      return node;
+    }
+
+    function render() {
+      const term = elements.search.value.trim().toLowerCase();
+      const visible = state.devices.filter(device => {
+        if (state.onlineOnly && !device.online) return false;
+        return !term || [device.name, device.original_name, device.mac, device.ip, device.vendor]
+          .some(value => String(value || '').toLowerCase().includes(term));
+      });
+      elements.rows.replaceChildren();
+      if (!visible.length) {
+        const row = document.createElement('tr');
+        const message = cell('没有符合条件的设备', 'empty');
+        message.colSpan = 8;
+        row.append(message);
+        elements.rows.append(row);
+      }
+      for (const device of visible) {
+        const row = document.createElement('tr');
+        const status = document.createElement('td');
+        status.innerHTML = `<span class="status ${device.online ? 'online' : ''}"><span class="dot"></span>${device.online ? '在线' : '离线'}</span>`;
+        const aliasCell = document.createElement('td');
+        const input = document.createElement('input');
+        input.className = 'alias-input';
+        input.value = device.alias || '';
+        input.placeholder = device.original_name || device.mac;
+        input.maxLength = 64;
+        input.setAttribute('aria-label', `${device.mac} 的设备名称`);
+        aliasCell.append(input);
+        const actions = document.createElement('td');
+        const actionGroup = document.createElement('div');
+        actionGroup.className = 'actions';
+        const save = document.createElement('button');
+        save.className = 'primary'; save.textContent = '保存';
+        save.onclick = () => saveAlias(device.mac, input.value, save);
+        const clear = document.createElement('button');
+        clear.className = 'ghost'; clear.textContent = '清除'; clear.disabled = !device.alias;
+        clear.onclick = () => clearAlias(device.mac, clear);
+        input.onkeydown = event => { if (event.key === 'Enter') save.click(); };
+        actionGroup.append(save, clear); actions.append(actionGroup);
+        row.append(status, aliasCell, cell(device.original_name, 'original'), cell(device.mac, 'mono'),
+          cell(device.ip, 'mono'), cell(device.band), cell(device.vendor, 'vendor'), actions);
+        elements.rows.append(row);
+      }
+      elements.deviceCount.textContent = state.devices.length;
+      elements.onlineCount.textContent = state.devices.filter(device => device.online).length;
+      elements.aliasCount.textContent = state.devices.filter(device => device.alias).length;
+    }
+
+    async function loadDevices(showMessage = false) {
+      elements.refresh.disabled = true;
+      try {
+        const body = await request('/api/devices');
+        state.devices = body.devices;
+        render();
+        if (showMessage) toast('设备列表已刷新');
+      } catch (error) {
+        toast(error.message, true);
+      } finally {
+        elements.refresh.disabled = false;
+      }
+    }
+
+    async function saveAlias(mac, name, button) {
+      button.disabled = true;
+      try {
+        await request('/api/aliases', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({mac, name}) });
+        await loadDevices();
+        toast('设备名称已保存，Grafana 将在下一采集周期更新');
+      } catch (error) { toast(error.message, true); }
+      finally { button.disabled = false; }
+    }
+
+    async function clearAlias(mac, button) {
+      button.disabled = true;
+      try {
+        await request('/api/aliases', { method: 'DELETE', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({mac}) });
+        await loadDevices();
+        toast('已恢复路由器提供的原始名称');
+      } catch (error) { toast(error.message, true); }
+      finally { button.disabled = false; }
+    }
+
+    elements.search.addEventListener('input', render);
+    elements.onlineOnly.onclick = () => {
+      state.onlineOnly = !state.onlineOnly;
+      elements.onlineOnly.textContent = state.onlineOnly ? '显示全部设备' : '仅看在线';
+      render();
+    };
+    elements.refresh.onclick = () => loadDevices(true);
+    loadDevices();
+    setInterval(() => loadDevices(), 30000);
+  </script>
+</body>
+</html>
