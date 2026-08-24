@@ -33,6 +33,32 @@ printf 'wan_interface|'; nvram get "${wan_prefix}_ifname"
 printf 'wan_protocol|'; nvram get "${wan_prefix}_proto"
 printf 'wan_private_ipv4|'; nvram get "${wan_prefix}_ipaddr"
 printf 'wan_public_ipv4|'; nvram get "${wan_prefix}_realip_ip"
+wan_interface=$(nvram get "${wan_prefix}_ifname")
+case "$wan_interface" in
+  ''|*[!A-Za-z0-9_.:-]*) printf 'wan_stats_error|invalid_interface\n' ;;
+  *)
+    wan_stats_path="/sys/class/net/${wan_interface}/statistics"
+    for counter in rx_bytes tx_bytes rx_packets tx_packets rx_errors tx_errors rx_dropped tx_dropped; do
+      counter_path="${wan_stats_path}/${counter}"
+      if [ -r "$counter_path" ]; then
+        printf 'wan_%s|' "$counter"
+        cat "$counter_path"
+      fi
+    done
+    if [ -r "/sys/class/net/${wan_interface}/speed" ]; then
+      wan_speed_mbps=$(cat "/sys/class/net/${wan_interface}/speed" 2>/dev/null || true)
+      case "$wan_speed_mbps" in
+        ''|*[!0-9]*) ;;
+        *) [ "$wan_speed_mbps" -gt 0 ] && printf 'wan_speed_mbps|%s\n' "$wan_speed_mbps" ;;
+      esac
+    fi
+    if [ -r "/sys/class/net/${wan_interface}/operstate" ]; then
+      operstate=$(cat "/sys/class/net/${wan_interface}/operstate")
+      [ "$operstate" = up ] && wan_oper_up=1 || wan_oper_up=0
+      printf 'wan_oper_up|%s\n' "$wan_oper_up"
+    fi
+    ;;
+esac
 wan_state=$(nvram get "${wan_prefix}_state_t")
 wan_link=$(nvram get link_wan)
 [ "$wan_state" = 2 ] && [ "$wan_link" = 1 ] && wan_up=1 || wan_up=0
@@ -203,6 +229,16 @@ class SystemSnapshot:
     wan_protocol: str
     wan_private_ipv4: str
     wan_public_ipv4: str
+    wan_receive_bytes: float
+    wan_transmit_bytes: float
+    wan_receive_packets: float
+    wan_transmit_packets: float
+    wan_receive_errors: float
+    wan_transmit_errors: float
+    wan_receive_dropped: float
+    wan_transmit_dropped: float
+    wan_speed_bps: float | None
+    wan_oper_up: float | None
     radios: tuple[RadioSnapshot, ...]
     temperatures: tuple[tuple[str, float], ...]
 
@@ -371,6 +407,14 @@ def parse_system(raw: str) -> SystemSnapshot:
         except ValueError as error:
             raise RuntimeError(f"invalid router system value for {key}") from error
 
+    def required_number(key: str) -> float:
+        if key not in values:
+            raise RuntimeError(f"router did not return required WAN counter {key}")
+        return number(key)
+
+    def optional_number(key: str) -> float | None:
+        return number(key) if key in values else None
+
     firmver = values.get("firmver", "")
     buildno = values.get("buildno", "")
     extendno = values.get("extendno", "")
@@ -442,6 +486,16 @@ def parse_system(raw: str) -> SystemSnapshot:
         wan_protocol=values.get("wan_protocol", "unknown"),
         wan_private_ipv4=values.get("wan_private_ipv4", ""),
         wan_public_ipv4=values.get("wan_public_ipv4", ""),
+        wan_receive_bytes=required_number("wan_rx_bytes"),
+        wan_transmit_bytes=required_number("wan_tx_bytes"),
+        wan_receive_packets=required_number("wan_rx_packets"),
+        wan_transmit_packets=required_number("wan_tx_packets"),
+        wan_receive_errors=required_number("wan_rx_errors"),
+        wan_transmit_errors=required_number("wan_tx_errors"),
+        wan_receive_dropped=required_number("wan_rx_dropped"),
+        wan_transmit_dropped=required_number("wan_tx_dropped"),
+        wan_speed_bps=(speed * 1_000_000 if (speed := optional_number("wan_speed_mbps")) and speed > 0 else None),
+        wan_oper_up=optional_number("wan_oper_up"),
         radios=tuple(radios),
         temperatures=tuple(temperatures),
     )
@@ -740,6 +794,7 @@ def render_system_metrics(snapshot: SystemSnapshot, previous_cpu: tuple[float, .
         f'private_ipv4="{metric_label(snapshot.wan_private_ipv4)}"',
         f'public_ipv4="{metric_label(snapshot.wan_public_ipv4)}"',
     ])
+    wan_interface_label = f'interface="{metric_label(snapshot.wan_interface)}"'
     lines = [
         "# HELP asus_router_info Router model and firmware information.",
         "# TYPE asus_router_info gauge",
@@ -795,6 +850,30 @@ def render_system_metrics(snapshot: SystemSnapshot, previous_cpu: tuple[float, .
         "# HELP asus_router_wan_info Active WAN interface, protocol, private address, and detected public IPv4 address.",
         "# TYPE asus_router_wan_info gauge",
         f"asus_router_wan_info{{{wan_labels}}} 1",
+        "# HELP asus_router_wan_receive_bytes_total Bytes received by the active WAN interface; download-side traffic.",
+        "# TYPE asus_router_wan_receive_bytes_total counter",
+        f"asus_router_wan_receive_bytes_total{{{wan_interface_label}}} {metric_value(snapshot.wan_receive_bytes)}",
+        "# HELP asus_router_wan_transmit_bytes_total Bytes transmitted by the active WAN interface; upload-side traffic.",
+        "# TYPE asus_router_wan_transmit_bytes_total counter",
+        f"asus_router_wan_transmit_bytes_total{{{wan_interface_label}}} {metric_value(snapshot.wan_transmit_bytes)}",
+        "# HELP asus_router_wan_receive_packets_total Packets received by the active WAN interface.",
+        "# TYPE asus_router_wan_receive_packets_total counter",
+        f"asus_router_wan_receive_packets_total{{{wan_interface_label}}} {metric_value(snapshot.wan_receive_packets)}",
+        "# HELP asus_router_wan_transmit_packets_total Packets transmitted by the active WAN interface.",
+        "# TYPE asus_router_wan_transmit_packets_total counter",
+        f"asus_router_wan_transmit_packets_total{{{wan_interface_label}}} {metric_value(snapshot.wan_transmit_packets)}",
+        "# HELP asus_router_wan_receive_errors_total Receive errors reported by the active WAN interface.",
+        "# TYPE asus_router_wan_receive_errors_total counter",
+        f"asus_router_wan_receive_errors_total{{{wan_interface_label}}} {metric_value(snapshot.wan_receive_errors)}",
+        "# HELP asus_router_wan_transmit_errors_total Transmit errors reported by the active WAN interface.",
+        "# TYPE asus_router_wan_transmit_errors_total counter",
+        f"asus_router_wan_transmit_errors_total{{{wan_interface_label}}} {metric_value(snapshot.wan_transmit_errors)}",
+        "# HELP asus_router_wan_receive_dropped_total Receive drops reported by the active WAN interface.",
+        "# TYPE asus_router_wan_receive_dropped_total counter",
+        f"asus_router_wan_receive_dropped_total{{{wan_interface_label}}} {metric_value(snapshot.wan_receive_dropped)}",
+        "# HELP asus_router_wan_transmit_dropped_total Transmit drops reported by the active WAN interface.",
+        "# TYPE asus_router_wan_transmit_dropped_total counter",
+        f"asus_router_wan_transmit_dropped_total{{{wan_interface_label}}} {metric_value(snapshot.wan_transmit_dropped)}",
         "# HELP asus_router_wifi_radio_channel Current primary channel for each wireless radio.",
         "# TYPE asus_router_wifi_radio_channel gauge",
         "# HELP asus_router_wifi_radio_channel_utilization_ratio Estimated channel utilization as one minus the chanim idle percentage.",
@@ -804,6 +883,18 @@ def render_system_metrics(snapshot: SystemSnapshot, previous_cpu: tuple[float, .
         "# HELP asus_router_temperature_celsius Router temperature sensors.",
         "# TYPE asus_router_temperature_celsius gauge",
     ]
+    if snapshot.wan_speed_bps is not None:
+        lines.extend([
+            "# HELP asus_router_wan_speed_bps Negotiated speed of the active WAN interface in bits per second.",
+            "# TYPE asus_router_wan_speed_bps gauge",
+            f"asus_router_wan_speed_bps{{{wan_interface_label}}} {metric_value(snapshot.wan_speed_bps)}",
+        ])
+    if snapshot.wan_oper_up is not None:
+        lines.extend([
+            "# HELP asus_router_wan_oper_up Whether the active WAN network interface is operationally up.",
+            "# TYPE asus_router_wan_oper_up gauge",
+            f"asus_router_wan_oper_up{{{wan_interface_label}}} {metric_value(snapshot.wan_oper_up)}",
+        ])
     for radio in snapshot.radios:
         radio_labels = f'iface="{metric_label(radio.iface)}",band="{metric_label(radio.band)}"'
         lines.extend([

@@ -18,6 +18,12 @@
 | `asus_router_conntrack_entries` / `active` / `limit` | 当前连接、活跃连接和最大容量 |
 | `asus_router_wan_info` | WAN 接口、协议和地址标签 |
 | `asus_router_wan_link_up` | WAN 链路是否在线 |
+| `asus_router_wan_receive_bytes_total` / `transmit_bytes_total` | 活动 WAN 接口累计接收/发送字节数 |
+| `asus_router_wan_receive_packets_total` / `transmit_packets_total` | 活动 WAN 接口累计接收/发送包数 |
+| `asus_router_wan_receive_errors_total` / `transmit_errors_total` | 活动 WAN 接口累计错误数 |
+| `asus_router_wan_receive_dropped_total` / `transmit_dropped_total` | Linux 活动 WAN 接口累计丢包数 |
+| `asus_router_wan_speed_bps` | 活动 WAN 接口标称速率；无法可靠读取时不发布 |
+| `asus_router_wan_oper_up` | Linux 活动 WAN 接口运行状态 |
 | `asus_router_wifi_radio_*` | 信道、利用率和噪声 |
 | `asus_wifi_station_*` | 每台无线客户端的 RSSI、SNR、速率、重试等 |
 | `asus_wifi_stations` | 当前关联的无线设备数 |
@@ -26,24 +32,18 @@
 
 设备名称位于 `name` 标签，MAC 位于稳定的 `mac` 标签。重命名后，新实时样本立即使用新名称；旧时序不会被重写。
 
-## SNMP 指标
-
-这些指标来自官方 `if_mib` 模块：
-
-| 指标 | 用途 |
-|---|---|
-| `ifHCInOctets` / `ifHCOutOctets` | 64 位接口累计接收/发送字节数 |
-| `ifInErrors` / `ifOutErrors` | 接口错误包累计值 |
-| `ifInDiscards` / `ifOutDiscards` | 接口丢弃包累计值 |
-| `ifOperStatus` | 接口运行状态 |
-| `ifSpeed` / `ifHighSpeed` | 接口标称速率 |
-
-WAN 实时下载/上传带宽由累计字节数的速率计算：
+WAN 实时下载/上传带宽由 SSH 读取的累计字节数计算：
 
 ```promql
-rate(ifHCInOctets{instance="$router_ip",ifName="$wan_if"}[2m]) * 8
-rate(ifHCOutOctets{instance="$router_ip",ifName="$wan_if"}[2m]) * 8
+rate(asus_router_wan_receive_bytes_total{interface="$wan_if"}[2m]) * 8
+rate(asus_router_wan_transmit_bytes_total{interface="$wan_if"}[2m]) * 8
 ```
+
+`*_dropped_total` 来自 Linux sysfs，和 SNMP IF-MIB 的 discard 定义不保证完全相同，不应把两者用于严格的逐点对账。
+
+## 可选 SNMP 指标
+
+只有需要查看全部路由器接口的标准 IF-MIB 数据时才启用 `snmp_exporter`。默认 SSH-only 仪表盘无需 SNMP；仪表盘中的旧 IF-MIB 查询仅用于展示迁移前已经保存在 VictoriaMetrics 中的历史数据。
 
 ## Traffic Analyzer 指标
 

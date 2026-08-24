@@ -2,14 +2,14 @@
 
 English | [简体中文](README.zh-CN.md)
 
-Monitor ASUS routers through SSH, SNMP, and Blackbox Exporter, store the metrics in VictoriaMetrics, and visualize router health, WAN traffic, wireless client quality, and per-device history in Grafana.
+Monitor ASUS routers through SSH and Blackbox Exporter, store the metrics in VictoriaMetrics, and visualize router health, WAN traffic, wireless client quality, and per-device history in Grafana. SNMP is optional and is not required by the default dashboard.
 
 The verified baseline is an RT-BE88U running Asuswrt-Merlin 3006.102.8_4. The SSH collector relies on Asuswrt commands and data sources such as `nvram`, `wl`, `conntrack`, and Traffic Analyzer. Run the read-only preflight check before trying an unlisted model.
 
 ## Features
 
 - Uptime, firmware, CPU, load, memory, temperatures, and Conntrack capacity
-- WAN state, SNMP interface throughput, errors, discards, and utilization
+- WAN state, throughput, packets, errors, drops, negotiated speed, and utilization over SSH
 - Wireless client identity, band, RSSI, SNR, PHY rates, retries, and traffic counters
 - LAN-only MAC-to-device-name management page
 - Hourly per-device Traffic Analyzer history imported into VictoriaMetrics
@@ -22,8 +22,7 @@ The verified baseline is an RT-BE88U running Asuswrt-Merlin 3006.102.8_4. The SS
 ```text
 ASUS Router
   ├─ SSH ───────────────> asus-wifi-exporter :9101
-  ├─ Traffic Analyzer ──> asus-traffic-importer
-  └─ SNMP ──────────────> snmp_exporter :9116
+  └─ Traffic Analyzer ──> asus-traffic-importer
 
 Internet targets ───────> blackbox_exporter :9115
                                  │
@@ -52,7 +51,7 @@ See the [complete screenshot gallery](docs/screenshots.en.md) for every dashboar
 
 ## Quick start
 
-1. Enable SSH, SNMP, and Traffic Analyzer on the router.
+1. Enable SSH and Traffic Analyzer on the router.
 2. Create the host configuration and enter the real router address:
 
    ```bash
@@ -80,7 +79,7 @@ See the [complete screenshot gallery](docs/screenshots.en.md) for every dashboar
    sudo systemctl enable --now asus-traffic-importer.timer
    ```
 
-6. Follow the [installation guide](docs/installation.en.md) to configure SNMP Exporter, Blackbox Exporter, VictoriaMetrics, and Grafana.
+6. Follow the [installation guide](docs/installation.en.md) to configure Blackbox Exporter, VictoriaMetrics, and Grafana. Optional SNMP IF-MIB collection is documented separately.
 
 ## Documentation
 
@@ -94,10 +93,10 @@ See the [complete screenshot gallery](docs/screenshots.en.md) for every dashboar
 
 ## Security summary
 
-- Never commit the SNMP community, SSH private keys, or a real device-name mapping.
+- Never commit SSH private keys, a real device-name mapping, or an optional SNMP community.
 - The unauthenticated device-name manager binds to `127.0.0.1` by default.
 - SSH collection is read-only and does not run `nvram set`, apply configuration, or reboot the router.
-- Private addresses and `eth1` in the examples are placeholders, not required values.
+- Private addresses in the examples are placeholders; the WAN interface is auto-discovered.
 
 Read [SECURITY.md](SECURITY.md) and [Known limitations](docs/limitations.md) before exposing any component beyond a trusted LAN.
 

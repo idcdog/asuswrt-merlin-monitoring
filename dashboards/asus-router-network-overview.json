@@ -102,7 +102,7 @@
         "type": "prometheus",
         "uid": "victoriametrics"
       },
-      "description": "所选 WAN 接口 的接收速率，按最近 2 分钟计数器增长率计算；代表路由器总互联网下载速度。",
+      "description": "SSH 读取活动 WAN 接口累计接收字节，并按最近 2 分钟增长率计算；旧时间段自动回退到已保留的 SNMP 历史数据。",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -139,7 +139,7 @@
       },
       "targets": [
         {
-          "expr": "rate(ifHCInOctets{job=\"asus_rt_be88u\",instance=\"$router_ip\",ifName=\"$wan_if\"}[2m]) * 8",
+          "expr": "(max(rate(asus_router_wan_receive_bytes_total{job=\"asus_wifi_clients\",interface=\"$wan_if\"}[2m])) or on() max(rate(ifHCInOctets{job=\"asus_rt_be88u\",instance=\"$router_ip\",ifName=\"$wan_if\"}[2m]))) * 8",
           "instant": true,
           "legendFormat": "总下载速度",
           "refId": "A"
@@ -153,7 +153,7 @@
         "type": "prometheus",
         "uid": "victoriametrics"
       },
-      "description": "所选 WAN 接口 的发送速率，按最近 2 分钟计数器增长率计算；代表路由器总互联网上传速度。",
+      "description": "SSH 读取活动 WAN 接口累计发送字节，并按最近 2 分钟增长率计算；旧时间段自动回退到已保留的 SNMP 历史数据。",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -190,7 +190,7 @@
       },
       "targets": [
         {
-          "expr": "rate(ifHCOutOctets{job=\"asus_rt_be88u\",instance=\"$router_ip\",ifName=\"$wan_if\"}[2m]) * 8",
+          "expr": "(max(rate(asus_router_wan_transmit_bytes_total{job=\"asus_wifi_clients\",interface=\"$wan_if\"}[2m])) or on() max(rate(ifHCOutOctets{job=\"asus_rt_be88u\",instance=\"$router_ip\",ifName=\"$wan_if\"}[2m]))) * 8",
           "instant": true,
           "legendFormat": "总上传速度",
           "refId": "A"
@@ -1955,9 +1955,9 @@
       },
       "targets": [
         {
-          "expr": "ifHighSpeed{job=\"asus_rt_be88u\",instance=\"$router_ip\",ifName=\"$wan_if\"} * 1000000",
+          "expr": "max(asus_router_wan_speed_bps{job=\"asus_wifi_clients\",interface=\"$wan_if\"}) or on() (max(ifHighSpeed{job=\"asus_rt_be88u\",instance=\"$router_ip\",ifName=\"$wan_if\"}) * 1000000)",
           "instant": true,
-          "legendFormat": "eth1",
+          "legendFormat": "{{interface}}",
           "refId": "A"
         }
       ],
@@ -2326,22 +2326,22 @@
       },
       "targets": [
         {
-          "expr": "rate(ifInErrors{job=\"asus_rt_be88u\",instance=\"$router_ip\",ifName=\"$wan_if\"}[5m])",
+          "expr": "max(rate(asus_router_wan_receive_errors_total{job=\"asus_wifi_clients\",interface=\"$wan_if\"}[5m])) or on() max(rate(ifInErrors{job=\"asus_rt_be88u\",instance=\"$router_ip\",ifName=\"$wan_if\"}[5m]))",
           "legendFormat": "接收错误",
           "refId": "A"
         },
         {
-          "expr": "rate(ifOutErrors{job=\"asus_rt_be88u\",instance=\"$router_ip\",ifName=\"$wan_if\"}[5m])",
+          "expr": "max(rate(asus_router_wan_transmit_errors_total{job=\"asus_wifi_clients\",interface=\"$wan_if\"}[5m])) or on() max(rate(ifOutErrors{job=\"asus_rt_be88u\",instance=\"$router_ip\",ifName=\"$wan_if\"}[5m]))",
           "legendFormat": "发送错误",
           "refId": "B"
         },
         {
-          "expr": "rate(ifInDiscards{job=\"asus_rt_be88u\",instance=\"$router_ip\",ifName=\"$wan_if\"}[5m])",
+          "expr": "max(rate(asus_router_wan_receive_dropped_total{job=\"asus_wifi_clients\",interface=\"$wan_if\"}[5m])) or on() max(rate(ifInDiscards{job=\"asus_rt_be88u\",instance=\"$router_ip\",ifName=\"$wan_if\"}[5m]))",
           "legendFormat": "接收丢弃",
           "refId": "C"
         },
         {
-          "expr": "rate(ifOutDiscards{job=\"asus_rt_be88u\",instance=\"$router_ip\",ifName=\"$wan_if\"}[5m])",
+          "expr": "max(rate(asus_router_wan_transmit_dropped_total{job=\"asus_wifi_clients\",interface=\"$wan_if\"}[5m])) or on() max(rate(ifOutDiscards{job=\"asus_rt_be88u\",instance=\"$router_ip\",ifName=\"$wan_if\"}[5m]))",
           "legendFormat": "发送丢弃",
           "refId": "D"
         }
@@ -2395,12 +2395,12 @@
       },
       "targets": [
         {
-          "expr": "rate(ifHCInOctets{job=\"asus_rt_be88u\",instance=\"$router_ip\",ifName=\"$wan_if\"}[2m]) * 8 / (ifHighSpeed{job=\"asus_rt_be88u\",instance=\"$router_ip\",ifName=\"$wan_if\"} * 1000000)",
+          "expr": "(max(rate(asus_router_wan_receive_bytes_total{job=\"asus_wifi_clients\",interface=\"$wan_if\"}[2m])) * 8 / max(asus_router_wan_speed_bps{job=\"asus_wifi_clients\",interface=\"$wan_if\"})) or on() (max(rate(ifHCInOctets{job=\"asus_rt_be88u\",instance=\"$router_ip\",ifName=\"$wan_if\"}[2m])) * 8 / (max(ifHighSpeed{job=\"asus_rt_be88u\",instance=\"$router_ip\",ifName=\"$wan_if\"}) * 1000000))",
           "legendFormat": "下载占用",
           "refId": "A"
         },
         {
-          "expr": "rate(ifHCOutOctets{job=\"asus_rt_be88u\",instance=\"$router_ip\",ifName=\"$wan_if\"}[2m]) * 8 / (ifHighSpeed{job=\"asus_rt_be88u\",instance=\"$router_ip\",ifName=\"$wan_if\"} * 1000000)",
+          "expr": "(max(rate(asus_router_wan_transmit_bytes_total{job=\"asus_wifi_clients\",interface=\"$wan_if\"}[2m])) * 8 / max(asus_router_wan_speed_bps{job=\"asus_wifi_clients\",interface=\"$wan_if\"})) or on() (max(rate(ifHCOutOctets{job=\"asus_rt_be88u\",instance=\"$router_ip\",ifName=\"$wan_if\"}[2m])) * 8 / (max(ifHighSpeed{job=\"asus_rt_be88u\",instance=\"$router_ip\",ifName=\"$wan_if\"}) * 1000000))",
           "legendFormat": "上传占用",
           "refId": "B"
         }

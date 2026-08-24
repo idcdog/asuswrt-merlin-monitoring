@@ -8,6 +8,16 @@ wan_interface|eth1
 wan_protocol|dhcp
 wan_private_ipv4|192.0.2.2
 wan_public_ipv4|198.51.100.2
+wan_rx_bytes|342500000000
+wan_tx_bytes|212900000000
+wan_rx_packets|319600000
+wan_tx_packets|313000000
+wan_rx_errors|0
+wan_tx_errors|0
+wan_rx_dropped|0
+wan_tx_dropped|4487
+wan_speed_mbps|2500
+wan_oper_up|1
 wan_link_up|1
 uptime_seconds|3600.5
 load1|0.25

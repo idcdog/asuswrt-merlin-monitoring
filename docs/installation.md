@@ -14,14 +14,14 @@
 | Python | 3.12.13；最低支持 3.10 |
 | VictoriaMetrics | single-node 1.125.1 |
 | Grafana | 12.4.3 |
-| SNMP Exporter | 0.30.1 |
+| SNMP Exporter（可选） | 0.30.1 |
 | Blackbox Exporter | 0.28.0 |
 
 - Python 3.10 或更高版本、OpenSSH client
 - VictoriaMetrics single-node
 - Grafana
-- Prometheus `snmp_exporter` 和 `blackbox_exporter`
-- 路由器已启用 SSH、SNMP、Traffic Analyzer
+- Prometheus `blackbox_exporter`；`snmp_exporter` 仅为可选扩展
+- 路由器已启用 SSH、Traffic Analyzer
 - 路由器中存在 `nvram`、`wl`、`conntrack`；导入历史流量还需要 `sqlite3`
 
 普通华硕原厂固件也可能提供 SSH、SNMP 和 Traffic Analyzer，但命令、文件路径及权限会因型号和固件分支变化。项目的已知基线是 RT-BE88U + Asuswrt-Merlin 3006.102.8_4。
@@ -78,7 +78,9 @@ sudo systemctl enable --now asus-wifi-exporter.service
 sudo systemctl enable --now asus-traffic-importer.timer
 ```
 
-## 5. 配置 SNMP Exporter
+## 5. 可选：配置 SNMP Exporter
+
+默认 SSH-only 仪表盘应跳过本节。只有需要查看路由器全部接口的标准 IF-MIB 数据时才启用，并将 `config/prometheus-scrape-snmp-optional.yml` 合并进 VictoriaMetrics 配置，然后运行 `sudo ./scripts/preflight.sh --check-snmp`。
 
 从 Prometheus `snmp_exporter` 官方发布包取得与程序版本匹配的 `snmp.yml`，确认其中包含 `if_mib` 模块，然后安装认证文件：
 
@@ -121,7 +123,6 @@ sudo systemctl enable --now blackbox-exporter.service
 ```bash
 curl -fsS http://127.0.0.1:8428/-/healthy
 curl -fsS http://127.0.0.1:9101/metrics | head
-curl -fsS http://127.0.0.1:9116/-/healthy
 curl -fsS http://127.0.0.1:9115/-/healthy
 ```
 
@@ -142,15 +143,15 @@ sudo systemctl restart grafana-server.service
 
 打开仪表盘后设置变量：
 
-- `router_ip`：路由器 IP，默认 `192.168.1.1`
+- `router_ip`：仅用于迁移前的 SNMP 历史查询；全新 SSH-only 安装可保留示例值
 - `wan_if`：从 `asus_router_wan_info` 中自动发现的活动 WAN 接口
 - `management_url`：设备别名管理页，例如 `http://192.168.1.10:9102`
 - `client`：无线设备筛选器，自动从指标标签生成
 
-前置检查会验证 SSH 发现的 WAN 名称是否也存在于 SNMP 中。如果自动发现为空或名称不匹配，可用下面的 PromQL 检查接口：
+活动 WAN 接口由 SSH 自动发现，可用下面的 PromQL 确认：
 
 ```promql
-ifHCInOctets{instance="192.168.1.1"}
+asus_router_wan_info{job="asus_wifi_clients"}
 ```
 
 ## 9. 设备名称管理

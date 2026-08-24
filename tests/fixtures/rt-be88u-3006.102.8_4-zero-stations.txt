@@ -6,6 +6,16 @@ extendno|4
 innerver|example
 wan_interface|eth1
 wan_protocol|dhcp
+wan_rx_bytes|1000
+wan_tx_bytes|2000
+wan_rx_packets|10
+wan_tx_packets|20
+wan_rx_errors|0
+wan_tx_errors|0
+wan_rx_dropped|0
+wan_tx_dropped|1
+wan_speed_mbps|2500
+wan_oper_up|1
 wan_link_up|1
 uptime_seconds|7200
 load1|0.10

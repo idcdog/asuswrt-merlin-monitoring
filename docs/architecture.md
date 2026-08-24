@@ -2,21 +2,21 @@
 
 [English](architecture.en.md)
 
-本项目把实时状态、接口计数器和小时级历史流量分成三条采集链路。这样既能利用标准 SNMP，也能补足 Asuswrt 无法通过 SNMP 暴露的无线客户端和系统信息。
+默认架构通过 SSH 采集路由器实时状态、活动 WAN 接口计数器和小时历史流量。只有需要查看全部接口 IF-MIB 时才启用可选 SNMP。
 
 ```text
                          ┌─────────────────────────────┐
                          │ Asuswrt / Asuswrt-Merlin    │
                          │                             │
-                         │ SSH commands   SNMP   SQLite│
-                         └──────┬──────────┬──────┬────┘
-                                │          │      │
-                   every 30s    │          │      │ every 10m
-                                ▼          ▼      ▼
-                    asus-wifi-exporter  snmp_exporter
-                         :9101/:9102       :9116   asus-traffic-importer
-                                │          │      │
-                                └──────────┼──────┘
+                         │ SSH commands        SQLite │
+                         └──────────┬────────────┬──┘
+                                    │            │
+                       every 30s    │            │ every 10m
+                                    ▼            ▼
+                         asus-wifi-exporter   asus-traffic-importer
+                              :9101/:9102          │
+                                    │              │
+                                    └──────┬───────┘
                                            ▼
                                    VictoriaMetrics :8428
                                            │
@@ -33,6 +33,7 @@ Internet HTTP / ICMP / DNS ──> blackbox_exporter :9115 ──┘
 - `/proc/uptime`、`/proc/loadavg`、`/proc/stat`、`/proc/meminfo`
 - Conntrack 当前数量、上限及活跃 TCP/UDP 会话
 - `nvram get` 返回的型号、固件和 WAN 状态
+- `/sys/class/net` 返回的活动 WAN 字节、数据包、错误、丢弃、状态和速率
 - `wl` 返回的无线射频、信道和关联客户端信息
 - DHCP lease、ARP 与 `/jffs/nmp_cl_json.js` 中的设备身份
 
@@ -40,11 +41,9 @@ Internet HTTP / ICMP / DNS ──> blackbox_exporter :9115 ──┘
 
 同一进程还可在 `:9102` 提供无鉴权的设备名称管理页及 JSON API。名称按 MAC 保存到本地 JSON。实时指标下一次采集就会带上新名称；历史 Traffic Analyzer 样本的 `name` 标签不会被原地改写，因此建议主要用稳定的 `mac` 标签做历史聚合。
 
-## SNMP 接口计数器
+## 可选 SNMP 接口计数器
 
-`snmp_exporter` 使用标准 `IF-MIB` 读取接口字节数、错误包、丢弃包、状态和速率。VictoriaMetrics 以 Prometheus 抓取配置访问 exporter 的 `/snmp`，由 exporter 再向路由器发出 SNMP 请求。
-
-SNMP community 放在独立的 `asus-auth.yml`，不进入版本库。公开仓库只提供 `CHANGE_ME` 示例。
+默认仪表盘不需要 SNMP。只有需要查看路由器全部接口的标准 IF-MIB 数据时，才启用可选抓取片段和 `snmp_exporter`。SNMP community 放在独立的 `asus-auth.yml`，不能进入版本库。
 
 ## Traffic Analyzer 导入
 

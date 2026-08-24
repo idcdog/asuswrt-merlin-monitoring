@@ -1,6 +1,14 @@
 @@SYSTEM@@
 productid|Example-Router
 cpu_stat|1 2 3 4
+wan_rx_bytes|0
+wan_tx_bytes|0
+wan_rx_packets|0
+wan_tx_packets|0
+wan_rx_errors|0
+wan_tx_errors|0
+wan_rx_dropped|0
+wan_tx_dropped|0
 @@NMP@@
 {}
 @@LEASES@@

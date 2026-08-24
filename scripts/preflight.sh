@@ -7,6 +7,7 @@ repo_dir=$(cd -- "${script_dir}/.." && pwd)
 env_file=/etc/default/asus-router-monitoring
 env_file_explicit=no
 mode=all
+check_snmp=no
 passes=0
 warnings=0
 failures=0
@@ -14,10 +15,11 @@ detected_wan_interface=''
 
 usage() {
   cat <<'EOF'
-Usage: preflight.sh [--env-file PATH] [--host-only | --router-only]
+Usage: preflight.sh [--env-file PATH] [--host-only | --router-only] [--check-snmp]
 
 Run read-only compatibility and connectivity checks. The script never installs
 packages, writes router configuration, starts services, or imports metrics.
+SNMP checks run only when --check-snmp is explicitly supplied.
 EOF
 }
 
@@ -35,6 +37,10 @@ while [[ $# -gt 0 ]]; do
       ;;
     --router-only)
       mode=router
+      shift
+      ;;
+    --check-snmp)
+      check_snmp=yes
       shift
       ;;
     -h|--help)
@@ -119,9 +125,11 @@ MANAGEMENT_LISTEN_HOST=${MANAGEMENT_LISTEN_HOST:-127.0.0.1}
 MANAGEMENT_LISTEN_PORT=${MANAGEMENT_LISTEN_PORT:-9102}
 VICTORIAMETRICS_URL=${VICTORIAMETRICS_URL:-http://127.0.0.1:8428}
 GRAFANA_URL=${GRAFANA_URL:-http://127.0.0.1:3000}
-SNMP_EXPORTER_URL=${SNMP_EXPORTER_URL:-http://127.0.0.1:9116}
 BLACKBOX_EXPORTER_URL=${BLACKBOX_EXPORTER_URL:-http://127.0.0.1:9115}
-SNMP_AUTH=${SNMP_AUTH:-asus_router_v2}
+if [[ "$check_snmp" == yes ]]; then
+  SNMP_EXPORTER_URL=${SNMP_EXPORTER_URL:-http://127.0.0.1:9116}
+  SNMP_AUTH=${SNMP_AUTH:-asus_router_v2}
+fi
 
 if [[ ! "$ROUTER_HOST" =~ ^[A-Za-z0-9._:-]+$ ]]; then
   fail "ROUTER_HOST contains unsupported characters"
@@ -167,7 +175,9 @@ if [[ "$mode" != router ]]; then
 
   http_check "VictoriaMetrics" "${VICTORIAMETRICS_URL%/}/-/healthy"
   http_check "Grafana" "${GRAFANA_URL%/}/api/health"
-  http_check "SNMP Exporter" "${SNMP_EXPORTER_URL%/}/-/healthy"
+  if [[ "$check_snmp" == yes ]]; then
+    http_check "SNMP Exporter" "${SNMP_EXPORTER_URL%/}/-/healthy"
+  fi
   http_check "Blackbox Exporter" "${BLACKBOX_EXPORTER_URL%/}/-/healthy"
   http_check "SSH metrics exporter" "http://${LISTEN_HOST}:${LISTEN_PORT}/healthz"
   http_check "device-name manager" "http://${MANAGEMENT_LISTEN_HOST}:${MANAGEMENT_LISTEN_PORT}/"
@@ -208,7 +218,30 @@ if which nvram >/dev/null 2>&1; then
   printf 'wl_ifnames='; nvram get wl_ifnames
   wan_unit=$(nvram get wan_unit)
   [ -n "$wan_unit" ] || wan_unit=0
-  printf 'wan_interface='; nvram get "wan${wan_unit}_ifname"
+  wan_interface=$(nvram get "wan${wan_unit}_ifname")
+  printf 'wan_interface=%s\n' "$wan_interface"
+  wan_stats_compatible=1
+  if [ -z "$wan_interface" ] || ! printf '%s\n' "$wan_interface" | grep -Eq '^[A-Za-z0-9_.:-]+$'; then
+    wan_stats_compatible=0
+  else
+    for counter in rx_bytes tx_bytes rx_packets tx_packets rx_errors tx_errors rx_dropped tx_dropped; do
+      counter_path="/sys/class/net/${wan_interface}/statistics/${counter}"
+      if [ ! -r "$counter_path" ]; then
+        wan_stats_compatible=0
+        continue
+      fi
+      counter_value=$(cat "$counter_path")
+      if [ -z "$counter_value" ] || ! printf '%s\n' "$counter_value" | grep -Eq '^[0-9]+$'; then
+        wan_stats_compatible=0
+      fi
+    done
+  fi
+  [ "$wan_stats_compatible" -eq 1 ] && echo 'wan_stats=compatible' || echo 'wan_stats=incompatible'
+  if [ -r "/sys/class/net/${wan_interface}/speed" ]; then
+    printf 'wan_speed_mbps='; cat "/sys/class/net/${wan_interface}/speed"
+  else
+    echo 'wan_speed_mbps=unavailable'
+  fi
   db_path=$(nvram get bwdpi_ana_path)
 else
   db_path=''
@@ -243,6 +276,7 @@ EOF
       extendno=$(printf '%s\n' "$router_output" | sed -n 's/^extendno=//p' | head -1)
       wl_ifnames=$(printf '%s\n' "$router_output" | sed -n 's/^wl_ifnames=//p' | head -1)
       detected_wan_interface=$(printf '%s\n' "$router_output" | sed -n 's/^wan_interface=//p' | head -1)
+      wan_speed_mbps=$(printf '%s\n' "$router_output" | sed -n 's/^wan_speed_mbps=//p' | head -1)
       if [[ -n "$model" ]]; then
         pass "router model detected: ${model}"
       else
@@ -258,6 +292,16 @@ EOF
         info "active WAN interface reported by Asuswrt: ${detected_wan_interface}"
       else
         warn "active WAN interface was not returned by Asuswrt"
+      fi
+      if grep -q '^wan_stats=compatible$' <<<"$router_output"; then
+        pass "active WAN sysfs counters are readable and numeric"
+      else
+        fail "active WAN sysfs counters are incomplete or invalid"
+      fi
+      if [[ "$wan_speed_mbps" =~ ^[0-9]+$ ]] && ((wan_speed_mbps > 0)); then
+        pass "active WAN negotiated speed available: ${wan_speed_mbps} Mbps"
+      else
+        warn "active WAN negotiated speed is unavailable; utilization panels will have no data"
       fi
 
       for required_command in nvram wl conntrack; do
@@ -292,7 +336,7 @@ EOF
     fi
   fi
 
-  if command -v curl >/dev/null 2>&1; then
+  if [[ "$check_snmp" == yes ]] && command -v curl >/dev/null 2>&1; then
     snmp_probe_url="${SNMP_EXPORTER_URL%/}/snmp?target=${ROUTER_HOST}&module=if_mib&auth=${SNMP_AUTH}"
     snmp_output=$(mktemp)
     if curl --fail --silent --show-error --max-time 20 "$snmp_probe_url" >"$snmp_output" 2>/dev/null; then

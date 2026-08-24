@@ -16,10 +16,10 @@ The initial verified installation uses:
 | Python | 3.12.13; minimum supported 3.10 |
 | VictoriaMetrics single-node | 1.125.1 |
 | Grafana | 12.4.3 |
-| SNMP Exporter | 0.30.1 |
+| SNMP Exporter (optional) | 0.30.1 |
 | Blackbox Exporter | 0.28.0 |
 
-Required host tools are Python 3.10+, OpenSSH client, curl, and systemd. The router must expose SSH and SNMP. Traffic history requires Asuswrt Traffic Analyzer and a router `sqlite3` binary.
+Required host tools are Python 3.10+, OpenSSH client, curl, and systemd. The router must expose SSH. Traffic history requires Asuswrt Traffic Analyzer and a router `sqlite3` binary. SNMP is optional.
 
 Other versions may work but have not been validated as a set. See the [compatibility matrix](compatibility.md).
 
@@ -75,7 +75,9 @@ sudo systemctl enable --now asus-wifi-exporter.service
 sudo systemctl enable --now asus-traffic-importer.timer
 ```
 
-## 5. Install SNMP Exporter
+## 5. Optional: install SNMP Exporter
+
+Skip this section for the default SSH-only dashboard. Enable it only when standard IF-MIB data for every router interface is required. Also merge `config/prometheus-scrape-snmp-optional.yml` into the VictoriaMetrics scrape configuration and run `sudo ./scripts/preflight.sh --check-snmp`.
 
 Download an official SNMP Exporter release for the host architecture and verify its published checksum. Install the binary as `/usr/local/bin/snmp_exporter`, create an unprivileged `snmp_exporter` system account, and obtain the matching official `snmp.yml` containing `if_mib`.
 
@@ -118,7 +120,6 @@ Restart VictoriaMetrics and verify local endpoints:
 ```bash
 curl -fsS http://127.0.0.1:8428/-/healthy
 curl -fsS http://127.0.0.1:9101/metrics | head
-curl -fsS http://127.0.0.1:9116/-/healthy
 curl -fsS http://127.0.0.1:9115/-/healthy
 ```
 
@@ -139,22 +140,22 @@ sudo systemctl restart grafana-server.service
 
 Set these dashboard variables:
 
-- `router_ip`: router address used as the SNMP instance label
+- `router_ip`: legacy SNMP history selector; new SSH-only installations can leave the example value
 - `wan_if`: query variable discovered from the active interface in `asus_router_wan_info`
 - `management_url`: optional device-name manager URL
 - `client`: generated automatically from device-name metrics
 
-Preflight verifies whether the SSH-discovered WAN name also exists in SNMP. If automatic discovery is empty or does not match, inspect interface names with:
+The active WAN is discovered over SSH. Confirm the current interface with:
 
 ```promql
-ifHCInOctets{instance="192.168.1.1"}
+asus_router_wan_info{job="asus_wifi_clients"}
 ```
 
 ## 9. Network exposure
 
 The metrics endpoint and device manager bind to loopback by default. Only change `MANAGEMENT_LISTEN_HOST` to a LAN address on a trusted network. The manager has no authentication and must never be exposed to the Internet.
 
-No inbound router port forwarding is required. The monitoring host initiates SSH and SNMP connections to the router.
+No inbound router port forwarding is required. The monitoring host initiates SSH connections to the router.
 
 ## 10. Upgrade and uninstall
 

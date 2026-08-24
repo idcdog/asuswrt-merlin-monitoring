@@ -71,8 +71,32 @@ for path in Path("dashboards").glob("*.json"):
         raise SystemExit(f"{path}: wan_if must be auto-discovered from asus_router_wan_info")
     for panel in dashboard["panels"]:
         for target in panel.get("targets", []):
-            if 'ifName="eth1"' in target.get("expr", ""):
+            expression = target.get("expr", "")
+            if 'ifName="eth1"' in expression:
                 raise SystemExit(f"{path}: panel {panel.get('id')} hard-codes eth1")
+            legacy_snmp_metrics = (
+                "ifHCInOctets", "ifHCOutOctets", "ifHighSpeed", "ifInErrors",
+                "ifOutErrors", "ifInDiscards", "ifOutDiscards",
+            )
+            if any(metric in expression for metric in legacy_snmp_metrics):
+                if "asus_router_wan_" not in expression or "or on()" not in expression:
+                    raise SystemExit(
+                        f"{path}: panel {panel.get('id')} depends on live SNMP without SSH fallback"
+                    )
+PY
+
+python3 - <<'PY'
+from pathlib import Path
+
+default_scrape = Path("config/prometheus-scrape.yml").read_text(encoding="utf-8")
+for forbidden in ("metrics_path: /snmp", "127.0.0.1:9116", "job_name: asus_rt_be88u"):
+    if forbidden in default_scrape:
+        raise SystemExit(f"default scrape configuration still requires SNMP: {forbidden}")
+
+optional_scrape = Path("config/prometheus-scrape-snmp-optional.yml").read_text(encoding="utf-8")
+for required in ("metrics_path: /snmp", "127.0.0.1:9116", "module: [if_mib]"):
+    if required not in optional_scrape:
+        raise SystemExit(f"optional SNMP scrape configuration is incomplete: {required}")
 PY
 
 python3 - <<'PY'

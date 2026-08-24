@@ -12,19 +12,21 @@ sudo ./scripts/preflight.sh
 
 检查 `asus-wifi-exporter.service` 状态和日志，并以相同账户测试 `BatchMode=yes` SSH。出现 `Host key verification failed` 表示 host key 未确认或发生变化；应调查变化原因，不要关闭 host-key 验证。
 
-当前 exporter 在路由器没有任何关联无线客户端时也会显示 stale，详见 [已知限制](limitations.zh-CN.md)。
+没有任何关联无线客户端是合法状态，应发布 `asus_wifi_stations 0`。若仍然 stale，请检查日志中的命令错误、缺失状态标记或截断输出。
 
-## SNMP 没有数据
+## 可选 SNMP 没有数据
 
-确认 SNMP Exporter 健康，并访问一次 `/snmp?target=路由器地址&module=if_mib&auth=asus_router_v2`。检查 UDP 161、防火墙、认证名称和私有 `asus-auth.yml`，不要在日志或 Issue 中输出 community。
+默认 SSH-only 部署可以忽略本节。启用可选 SNMP 后，使用 `preflight.sh --check-snmp`，并检查 UDP 161、防火墙、认证名称和私有 `asus-auth.yml`。不要在日志或 Issue 中输出 community。
 
 ## WAN 面板为零
 
-仪表盘通常会从 `asus_router_wan_info` 自动发现活动 WAN 接口。先运行前置检查确认同名接口存在于 SNMP；如果变量为空或两边名称不同，再使用下面的 PromQL 列出接口，并临时把 `wan_if` 选为实际承载互联网流量的接口：
+仪表盘从 `asus_router_wan_info` 自动发现活动 WAN 接口。先运行前置检查，然后用下面的 PromQL 检查 SSH 计数器和接口标签：
 
 ```promql
-ifHCInOctets{instance="192.168.1.1"}
+asus_router_wan_receive_bytes_total
 ```
+
+如果字节计数存在但速率或利用率为空，检查 `asus_router_wan_speed_bps`。逻辑接口不提供可靠速度时，该指标会被有意省略。
 
 ## Traffic Analyzer 没有历史
 
@@ -34,7 +36,7 @@ ifHCInOctets{instance="192.168.1.1"}
 
 ## Grafana 显示 `No data`
 
-确认 VictoriaMetrics 健康、`asus_wifi_exporter_up` 能查询到、datasource UID 为 `victoriametrics`，并检查 `router_ip`、`wan_if` 和实际 scrape 配置。
+确认 VictoriaMetrics 健康、`asus_wifi_exporter_up` 能查询到、datasource UID 为 `victoriametrics`，并检查 `wan_if` 和实际 scrape 配置。`router_ip` 仅供迁移前的 SNMP 历史回退查询使用。
 
 ## Blackbox ICMP 失败
 

@@ -13,14 +13,14 @@
 | Python | 3.12.13；代码最低要求 3.10 | 已支持 |
 | VictoriaMetrics | single-node 1.125.1 | 已支持 |
 | Grafana | 12.4.3 | 已支持 |
-| SNMP Exporter | 0.30.1，官方 `if_mib` | 已支持 |
+| SNMP Exporter（可选） | 0.30.1，官方 `if_mib` | 已验证但默认不启用 |
 | Blackbox Exporter | 0.28.0 | 已支持 |
 
 “已支持”表示完整链路已在真实环境验证，不代表厂商支持承诺。
 
 ## 预期兼容性
 
-标准 SNMP `IF-MIB` 通常可用于更多开启 SNMP 的华硕型号，但接口名和 WAN 映射会不同。SSH 采集更依赖具体平台，因为它使用 Broadcom `wl`、Asuswrt NVRAM、Linux procfs 路径和 Traffic Analyzer 内部数据库。
+SSH 采集依赖 Broadcom `wl`、Asuswrt NVRAM、Linux procfs/sysfs 路径和 Traffic Analyzer 内部数据库。可选的标准 SNMP `IF-MIB` 通常适用于更多开启 SNMP 的华硕型号，但不属于默认链路。
 
 | 路由器特征 | 预期结果 |
 |---|---|
@@ -30,8 +30,10 @@
 | 没有 Traffic Analyzer 或 `sqlite3` | 实时指标可用，小时历史不可用 |
 | Conntrack 命令或路径不同 | 需适配后才能采集完整系统信息 |
 | 双 WAN/负载均衡 | 只汇总 NVRAM 当前活动 WAN 单元 |
+| 活动 WAN 接口缺少 sysfs 计数器 | 实时采集明确失败，不发布猜测值 |
+| PPPoE/VLAN 等逻辑 WAN 无 `speed` | 流量计数仍可用，但不发布链路速率与利用率 |
 | 命令相同的华硕原厂固件 | 可能可用，但尚未验证 |
 
 ## 提交兼容性报告前
 
-运行只读前置检查、实时单次采集和历史 dry-run，然后使用兼容性 Issue 模板提交型号、固件、监控服务器版本和脱敏结果。不要上传 SNMP community、SSH 私钥、真实 MAC、设备名称、公网 IP 或完整内网清单。
+运行只读前置检查、实时单次采集和历史 dry-run，然后使用兼容性 Issue 模板提交型号、固件、监控服务器版本和脱敏结果。只有测试可选 SNMP 时才使用 `--check-snmp`。不要上传 SNMP community、SSH 私钥、真实 MAC、设备名称、公网 IP 或完整内网清单。

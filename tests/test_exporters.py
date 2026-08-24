@@ -67,6 +67,16 @@ wan_interface|eth1
 wan_protocol|dhcp
 wan_private_ipv4|192.0.2.2
 wan_public_ipv4|198.51.100.2
+wan_rx_bytes|342500000000
+wan_tx_bytes|212900000000
+wan_rx_packets|319600000
+wan_tx_packets|313000000
+wan_rx_errors|0
+wan_tx_errors|0
+wan_rx_dropped|0
+wan_tx_dropped|4487
+wan_speed_mbps|2500
+wan_oper_up|1
 wan_link_up|1
 uptime_seconds|3600.5
 load1|0.25
@@ -92,6 +102,10 @@ radio_wl1|5G|149|12|-96
         self.assertEqual(snapshot.firmware, "3006.102.8_4")
         self.assertEqual(snapshot.memory_total_bytes, 2048000 * 1024)
         self.assertEqual(snapshot.conntrack_active, 429)
+        self.assertEqual(snapshot.wan_receive_bytes, 342_500_000_000)
+        self.assertEqual(snapshot.wan_transmit_dropped, 4487)
+        self.assertEqual(snapshot.wan_speed_bps, 2_500_000_000)
+        self.assertEqual(snapshot.wan_oper_up, 1)
         self.assertEqual(snapshot.radios[1].band, "5G")
         self.assertAlmostEqual(snapshot.radios[0].utilization_ratio, 0.18)
         temperatures = dict(snapshot.temperatures)
@@ -100,6 +114,17 @@ radio_wl1|5G|149|12|-96
     def test_parse_system_rejects_incomplete_cpu_counters(self) -> None:
         with self.assertRaises(RuntimeError):
             wifi.parse_system("cpu_stat|1 2 3")
+
+    def test_missing_wan_speed_is_not_published_as_zero(self) -> None:
+        raw = fixture("rt-be88u-3006.102.8_4-full.txt").replace("wan_speed_mbps|2500\n", "")
+        snapshot = wifi.parse_system(wifi.section(raw, "@@SYSTEM@@", "@@NMP@@"))
+        self.assertIsNone(snapshot.wan_speed_bps)
+        self.assertNotIn("asus_router_wan_speed_bps", wifi.render_system_metrics(snapshot))
+
+    def test_missing_required_wan_counter_is_rejected(self) -> None:
+        raw = fixture("rt-be88u-3006.102.8_4-full.txt").replace("wan_rx_bytes|342500000000\n", "")
+        with self.assertRaisesRegex(RuntimeError, "required WAN counter wan_rx_bytes"):
+            wifi.parse_system(wifi.section(raw, "@@SYSTEM@@", "@@NMP@@"))
 
     def test_parse_wireless_station(self) -> None:
         raw = """\
@@ -150,6 +175,12 @@ rx ucast bytes: 67890
         )
         self.assertIn("asus_wifi_stations 2\n", metrics)
         self.assertEqual(sum(bool(device["online"]) for device in devices), 2)
+        system_metrics = wifi.render_system_metrics(snapshot)
+        self.assertIn(
+            'asus_router_wan_receive_bytes_total{interface="eth1"} 342500000000',
+            system_metrics,
+        )
+        self.assertIn('asus_router_wan_speed_bps{interface="eth1"} 2500000000', system_metrics)
 
     def test_zero_station_fixture_is_healthy(self) -> None:
         raw = fixture("rt-be88u-3006.102.8_4-zero-stations.txt")

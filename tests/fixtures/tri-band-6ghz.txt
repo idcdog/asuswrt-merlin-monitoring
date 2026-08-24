@@ -1,6 +1,14 @@
 @@SYSTEM@@
 productid|Example-Tri-Band
 cpu_stat|1 2 3 4
+wan_rx_bytes|0
+wan_tx_bytes|0
+wan_rx_packets|0
+wan_tx_packets|0
+wan_rx_errors|0
+wan_tx_errors|0
+wan_rx_dropped|0
+wan_tx_dropped|0
 radio_temp_wl0|2.4G|60
 radio_wl0|2.4G|1|10|-94
 radio_temp_wl1|5G|61

@@ -15,6 +15,12 @@
 | `asus_router_temperature_celsius` | CPU and radio temperatures |
 | `asus_router_conntrack_entries` / `active` / `limit` | Conntrack utilization and capacity |
 | `asus_router_wan_info` / `wan_link_up` | Active WAN metadata and state |
+| `asus_router_wan_receive_bytes_total` / `transmit_bytes_total` | Active-WAN cumulative byte counters |
+| `asus_router_wan_receive_packets_total` / `transmit_packets_total` | Active-WAN cumulative packet counters |
+| `asus_router_wan_receive_errors_total` / `transmit_errors_total` | Active-WAN cumulative error counters |
+| `asus_router_wan_receive_dropped_total` / `transmit_dropped_total` | Linux active-WAN cumulative drop counters |
+| `asus_router_wan_speed_bps` | Nominal active-WAN interface speed; omitted when unavailable |
+| `asus_router_wan_oper_up` | Linux active-WAN interface operational state |
 | `asus_router_wifi_radio_*` | Channel, utilization, and noise |
 | `asus_wifi_station_*` | Per-station RSSI, SNR, rates, retries, and counters |
 | `asus_wifi_stations` | Distinct associated wireless clients |
@@ -23,14 +29,18 @@
 
 Device display name is a mutable `name` label; `mac` is the stable identity. Renaming produces new live series and does not rewrite historical labels.
 
-## SNMP metrics
-
-The official `if_mib` module provides `ifHCInOctets`, `ifHCOutOctets`, interface errors, discards, operational state, and speed. WAN throughput is calculated from 64-bit byte counters:
+WAN throughput is calculated from SSH-collected cumulative byte counters:
 
 ```promql
-rate(ifHCInOctets{instance="$router_ip",ifName="$wan_if"}[2m]) * 8
-rate(ifHCOutOctets{instance="$router_ip",ifName="$wan_if"}[2m]) * 8
+rate(asus_router_wan_receive_bytes_total{interface="$wan_if"}[2m]) * 8
+rate(asus_router_wan_transmit_bytes_total{interface="$wan_if"}[2m]) * 8
 ```
+
+The Linux `*_dropped_total` counters are not guaranteed to have exactly the same semantics as SNMP IF-MIB discard counters. Do not expect strict point-for-point equality between them.
+
+## Optional SNMP metrics
+
+Enable `snmp_exporter` only when standard IF-MIB visibility for every router interface is required. The default SSH-only dashboard does not need SNMP. Its legacy IF-MIB query branches only preserve access to history already stored before migration.
 
 ## Traffic Analyzer metrics
 
