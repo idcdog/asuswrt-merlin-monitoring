@@ -39,6 +39,8 @@ rate(asus_router_wan_receive_bytes_total{interface="$wan_if"}[2m]) * 8
 rate(asus_router_wan_transmit_bytes_total{interface="$wan_if"}[2m]) * 8
 ```
 
+WAN 字节计数来自活动接口本身。它不包含普通 `br0` 内网互传，但会包含经过 WAN 接口的上级网段流量、路由器自身流量和无法归属到客户端的流量，因此仪表盘将日累计量标为“WAN 口流量（估算）”，不应作为运营商计费依据。每日趋势使用 `offset -1d` 将自然日 00:00 至次日 00:00 的增量显示在该自然日，而不是显示在次日零点。
+
 `*_dropped_total` 来自 Linux sysfs，和 SNMP IF-MIB 的 discard 定义不保证完全相同，不应把两者用于严格的逐点对账。
 
 ## 可选 SNMP 指标

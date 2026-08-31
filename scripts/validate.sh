@@ -80,6 +80,20 @@ for path in Path("dashboards").glob("*.json"):
     if startup_text.get("titleSize", 0) < 16 or startup_text.get("valueSize", 0) < 22:
         raise SystemExit(f"{path}: startup panel text must remain readable at compact dashboard widths")
 
+    wireless_summary = panels_by_id.get(1, {})
+    wireless_distribution = panels_by_id.get(75, {})
+    connection_summary = panels_by_id.get(33, {})
+    connection_capacity = panels_by_id.get(76, {})
+    if wireless_summary.get("gridPos", {}).get("w") != 2 or wireless_distribution.get("type") != "bargauge":
+        raise SystemExit(f"{path}: wireless summary must preserve the primary-value and distribution layout")
+    if connection_summary.get("gridPos", {}).get("w") != 3 or connection_capacity.get("type") != "bargauge":
+        raise SystemExit(f"{path}: connection summary must preserve the primary-value and capacity layout")
+    if not any(
+        "asus_router_conntrack_limit" in target.get("expr", "")
+        for target in connection_capacity.get("targets", [])
+    ):
+        raise SystemExit(f"{path}: connection capacity panel must calculate usage against the configured limit")
+
     daily_wan_panels = {
         72: "asus_router_wan_receive_bytes_total",
         73: "asus_router_wan_transmit_bytes_total",
@@ -87,7 +101,7 @@ for path in Path("dashboards").glob("*.json"):
     for panel_id, metric in daily_wan_panels.items():
         panel = panels_by_id.get(panel_id, {})
         expressions = [target.get("expr", "") for target in panel.get("targets", [])]
-        if panel.get("timeFrom") != "now/d" or not any(
+        if "WAN 口" not in panel.get("title", "") or panel.get("timeFrom") != "now/d" or not any(
             metric in expression and "increase(" in expression and "$__range" in expression
             for expression in expressions
         ):
@@ -99,12 +113,12 @@ for path in Path("dashboards").glob("*.json"):
         "asus_router_wan_receive_bytes_total",
         "asus_router_wan_transmit_bytes_total",
     }
-    if daily_trend.get("timeFrom") != "30d/d" or not all(
-        any(metric in expression and "increase(" in expression and "[1d]" in expression
+    if "WAN 口" not in daily_trend.get("title", "") or daily_trend.get("timeFrom") != "30d/d" or not all(
+        any(metric in expression and "increase(" in expression and "[1d]" in expression and "offset -1d" in expression
             for expression in trend_expressions)
         for metric in required_trend_metrics
     ):
-        raise SystemExit(f"{path}: panel 74 must contain the 30-day daily WAN traffic trend")
+        raise SystemExit(f"{path}: panel 74 must align each daily WAN total with its calendar date")
 
     for panel in dashboard["panels"]:
         for target in panel.get("targets", []):

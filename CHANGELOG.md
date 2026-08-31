@@ -14,7 +14,9 @@ All notable project changes are documented here. The project follows Semantic Ve
 - Discover the Grafana WAN interface from `asus_router_wan_info` and verify its sysfs counters during preflight
 - Preserve the original `asus-wifi-clients` Grafana dashboard UID so upgrades update existing URLs instead of creating a duplicate dashboard
 - Add today-so-far WAN download/upload totals and an estimated 30-day daily WAN traffic chart
+- Align daily WAN bars with the calendar day they measure and clarify that interface totals are not Internet-only accounting
 - Increase the startup card label and value sizes for better first-screen readability
+- Redesign wireless-device and conntrack summaries with primary values and compact proportion bars
 - Add sanitized full, zero-client, command-error, malformed-output, and 6 GHz regression fixtures
 
 ## [0.1.0] - 2026-08-23

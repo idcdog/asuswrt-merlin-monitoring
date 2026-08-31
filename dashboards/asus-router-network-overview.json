@@ -216,7 +216,7 @@
       },
       "gridPos": {
         "h": 4,
-        "w": 5,
+        "w": 2,
         "x": 14,
         "y": 0
       },
@@ -233,7 +233,11 @@
           "fields": "",
           "values": false
         },
-        "textMode": "auto",
+        "text": {
+          "titleSize": 14,
+          "valueSize": 34
+        },
+        "textMode": "value_and_name",
         "wideLayout": true
       },
       "targets": [
@@ -242,30 +246,18 @@
           "instant": true,
           "legendFormat": "总数",
           "refId": "A"
-        },
-        {
-          "expr": "count(count by (mac) (asus_wifi_station_info{job=\"asus_wifi_clients\",band=\"2.4G\"}))",
-          "instant": true,
-          "legendFormat": "2.4G",
-          "refId": "B"
-        },
-        {
-          "expr": "count(count by (mac) (asus_wifi_station_info{job=\"asus_wifi_clients\",band=\"5G\"}))",
-          "instant": true,
-          "legendFormat": "5G",
-          "refId": "C"
         }
       ],
       "title": "在线无线设备",
       "type": "stat",
-      "description": "当前关联到路由器的无线设备；卡片内依次显示总数、2.4G 和 5G。"
+      "description": "当前关联到路由器的无线设备总数。"
     },
     {
       "datasource": {
         "type": "prometheus",
         "uid": "victoriametrics"
       },
-      "description": "依次显示 conntrack 当前条目、配置上限和 Merlin 口径的活跃连接。",
+      "description": "在线无线设备在 2.4 GHz 与 5 GHz 频段中的占比。",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -273,7 +265,9 @@
             "fixedColor": "blue"
           },
           "decimals": 0,
-          "unit": "short"
+          "max": 1,
+          "min": 0,
+          "unit": "percentunit"
         },
         "overrides": [
           {
@@ -286,11 +280,76 @@
                 "id": "color",
                 "value": {
                   "mode": "fixed",
-                  "fixedColor": "dark-blue"
+                  "fixedColor": "purple"
                 }
               }
             ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 3,
+        "x": 16,
+        "y": 0
+      },
+      "id": 75,
+      "options": {
+        "displayMode": "gradient",
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": false
+        },
+        "minVizHeight": 10,
+        "minVizWidth": 0,
+        "namePlacement": "left",
+        "orientation": "horizontal",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showUnfilled": true,
+        "sizing": "auto",
+        "valueMode": "color"
+      },
+      "targets": [
+        {
+          "expr": "count(count by (mac) (asus_wifi_station_info{job=\"asus_wifi_clients\",band=\"2.4G\"})) / clamp_min(count(count by (mac) (asus_wifi_station_info{job=\"asus_wifi_clients\"})), 1)",
+          "instant": true,
+          "legendFormat": "2.4G",
+          "refId": "A"
+        },
+        {
+          "expr": "count(count by (mac) (asus_wifi_station_info{job=\"asus_wifi_clients\",band=\"5G\"})) / clamp_min(count(count by (mac) (asus_wifi_station_info{job=\"asus_wifi_clients\"})), 1)",
+          "instant": true,
+          "legendFormat": "5G",
+          "refId": "B"
+        }
+      ],
+      "title": "频段分布",
+      "type": "bargauge"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "victoriametrics"
+      },
+      "description": "显示 conntrack 当前条目和 Merlin 口径的活跃连接；配置上限在右侧容量卡片中体现。",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "fixed",
+            "fixedColor": "blue"
           },
+          "decimals": 0,
+          "unit": "locale"
+        },
+        "overrides": [
           {
             "matcher": {
               "id": "byFrameRefID",
@@ -310,7 +369,7 @@
       },
       "gridPos": {
         "h": 4,
-        "w": 5,
+        "w": 3,
         "x": 19,
         "y": 0
       },
@@ -327,7 +386,11 @@
           "fields": "",
           "values": false
         },
-        "textMode": "auto",
+        "text": {
+          "titleSize": 13,
+          "valueSize": 22
+        },
+        "textMode": "value_and_name",
         "wideLayout": true
       },
       "targets": [
@@ -338,12 +401,6 @@
           "refId": "A"
         },
         {
-          "expr": "asus_router_conntrack_limit{job=\"asus_wifi_clients\"}",
-          "instant": true,
-          "legendFormat": "上限",
-          "refId": "B"
-        },
-        {
           "expr": "asus_router_conntrack_active{job=\"asus_wifi_clients\"}",
           "instant": true,
           "legendFormat": "活跃",
@@ -352,6 +409,82 @@
       ],
       "title": "连接数",
       "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "victoriametrics"
+      },
+      "description": "conntrack 当前条目占配置上限的比例。",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "decimals": 2,
+          "max": 1,
+          "min": 0,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "yellow",
+                "value": 0.7
+              },
+              {
+                "color": "red",
+                "value": 0.85
+              }
+            ]
+          },
+          "unit": "percentunit"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 2,
+        "x": 22,
+        "y": 0
+      },
+      "id": 76,
+      "options": {
+        "displayMode": "gradient",
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": false
+        },
+        "minVizHeight": 10,
+        "minVizWidth": 0,
+        "namePlacement": "left",
+        "orientation": "horizontal",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showUnfilled": true,
+        "sizing": "auto",
+        "valueMode": "color"
+      },
+      "targets": [
+        {
+          "expr": "asus_router_conntrack_entries{job=\"asus_wifi_clients\"} / clamp_min(asus_router_conntrack_limit{job=\"asus_wifi_clients\"}, 1)",
+          "instant": true,
+          "legendFormat": "已使用",
+          "refId": "A"
+        }
+      ],
+      "title": "容量占用",
+      "type": "bargauge"
     },
     {
       "datasource": {
@@ -3481,7 +3614,7 @@
         "type": "prometheus",
         "uid": "victoriametrics"
       },
-      "description": "按浏览器本地时区统计当天 00:00 至当前时间的 WAN 接收字节增量。采集中断或路由器重启可能造成少量偏差。",
+      "description": "按浏览器本地时区统计当天 00:00 至当前时间的 WAN 口接收字节增量。包含通过 eth1 的上级网段及路由器自身流量，不包含普通 br0 内网互传；采集中断或路由器重启可能造成少量偏差。",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -3523,7 +3656,7 @@
         }
       ],
       "timeFrom": "now/d",
-      "title": "今日互联网下载量",
+      "title": "今日 WAN 口下载量（估算）",
       "type": "stat"
     },
     {
@@ -3531,7 +3664,7 @@
         "type": "prometheus",
         "uid": "victoriametrics"
       },
-      "description": "按浏览器本地时区统计当天 00:00 至当前时间的 WAN 发送字节增量。采集中断或路由器重启可能造成少量偏差。",
+      "description": "按浏览器本地时区统计当天 00:00 至当前时间的 WAN 口发送字节增量。包含通过 eth1 的上级网段及路由器自身流量，不包含普通 br0 内网互传；采集中断或路由器重启可能造成少量偏差。",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -3573,7 +3706,7 @@
         }
       ],
       "timeFrom": "now/d",
-      "title": "今日互联网上传量",
+      "title": "今日 WAN 口上传量（估算）",
       "type": "stat"
     },
     {
@@ -3581,7 +3714,7 @@
         "type": "prometheus",
         "uid": "victoriametrics"
       },
-      "description": "每个点是前 24 小时 WAN 累计字节增量，按 1 天步长显示，适合观察趋势，不作为运营商计费依据。",
+      "description": "每根柱对应横轴所示自然日 00:00 至次日 00:00 的 WAN 口累计字节增量。包含通过 eth1 的上级网段及路由器自身流量，不包含普通 br0 内网互传；适合观察趋势，不作为运营商计费依据。",
       "fieldConfig": {
         "defaults": {
           "custom": {
@@ -3656,20 +3789,20 @@
       },
       "targets": [
         {
-          "expr": "sum(increase(asus_router_wan_receive_bytes_total{job=\"asus_wifi_clients\",interface=\"$wan_if\"}[1d]))",
+          "expr": "sum(increase(asus_router_wan_receive_bytes_total{job=\"asus_wifi_clients\",interface=\"$wan_if\"}[1d] offset -1d))",
           "interval": "1d",
           "legendFormat": "下载",
           "refId": "A"
         },
         {
-          "expr": "sum(increase(asus_router_wan_transmit_bytes_total{job=\"asus_wifi_clients\",interface=\"$wan_if\"}[1d]))",
+          "expr": "sum(increase(asus_router_wan_transmit_bytes_total{job=\"asus_wifi_clients\",interface=\"$wan_if\"}[1d] offset -1d))",
           "interval": "1d",
           "legendFormat": "上传",
           "refId": "B"
         }
       ],
       "timeFrom": "30d/d",
-      "title": "近 30 天每日互联网流量（估算）",
+      "title": "近 30 天每日 WAN 口流量（估算）",
       "type": "timeseries"
     },
     {
@@ -4385,7 +4518,7 @@
   "timezone": "browser",
   "title": "华硕路由器网络总览",
   "uid": "asus-wifi-clients",
-  "version": 13,
+  "version": 15,
   "weekStart": "",
   "description": "Asuswrt-Merlin 路由器网络运行摘要、设备活动、系统健康、互联网质量、无线质量与历史流量。"
 }

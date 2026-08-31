@@ -36,6 +36,8 @@ rate(asus_router_wan_receive_bytes_total{interface="$wan_if"}[2m]) * 8
 rate(asus_router_wan_transmit_bytes_total{interface="$wan_if"}[2m]) * 8
 ```
 
+WAN byte counters come from the active interface itself. They exclude ordinary `br0` LAN-to-LAN transfers, but include upstream-subnet traffic, router-originated traffic, and traffic that cannot be attributed to a client. The dashboard therefore labels daily totals as estimated WAN-interface traffic rather than billing-grade Internet usage. The daily trend uses `offset -1d` so the increase from one midnight to the next is plotted on the calendar day it measures instead of at the following midnight.
+
 The Linux `*_dropped_total` counters are not guaranteed to have exactly the same semantics as SNMP IF-MIB discard counters. Do not expect strict point-for-point equality between them.
 
 ## Optional SNMP metrics
