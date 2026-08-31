@@ -39,6 +39,10 @@ for path in Path("dashboards").glob("*.json"):
     dashboard = json.loads(path.read_text(encoding="utf-8"))
     if not isinstance(dashboard.get("panels"), list):
         raise SystemExit(f"{path}: missing panels list")
+    if path.name == "asus-router-network-overview.json" and dashboard.get("uid") != "asus-wifi-clients":
+        raise SystemExit(
+            f"{path}: dashboard UID must remain asus-wifi-clients to preserve existing URLs and history"
+        )
 
     ids: set[int] = set()
     occupied: list[tuple[int, int, int, int, int]] = []

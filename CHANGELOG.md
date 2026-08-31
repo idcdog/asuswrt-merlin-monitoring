@@ -12,6 +12,7 @@ All notable project changes are documented here. The project follows Semantic Ve
 - Make SNMP an optional extension and remove it from the default scrape configuration and preflight checks
 - Prefer SSH WAN metrics in Grafana while preserving read-only fallback queries for previously stored SNMP history
 - Discover the Grafana WAN interface from `asus_router_wan_info` and verify its sysfs counters during preflight
+- Preserve the original `asus-wifi-clients` Grafana dashboard UID so upgrades update existing URLs instead of creating a duplicate dashboard
 - Add sanitized full, zero-client, command-error, malformed-output, and 6 GHz regression fixtures
 
 ## [0.1.0] - 2026-08-23
