@@ -407,6 +407,10 @@
           "fields": "",
           "values": false
         },
+        "text": {
+          "titleSize": 16,
+          "valueSize": 22
+        },
         "textMode": "auto",
         "wideLayout": true
       },
@@ -4381,7 +4385,7 @@
   "timezone": "browser",
   "title": "华硕路由器网络总览",
   "uid": "asus-wifi-clients",
-  "version": 12,
+  "version": 13,
   "weekStart": "",
   "description": "Asuswrt-Merlin 路由器网络运行摘要、设备活动、系统健康、互联网质量、无线质量与历史流量。"
 }

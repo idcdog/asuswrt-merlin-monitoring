@@ -75,6 +75,11 @@ for path in Path("dashboards").glob("*.json"):
         raise SystemExit(f"{path}: wan_if must be auto-discovered from asus_router_wan_info")
 
     panels_by_id = {panel.get("id"): panel for panel in dashboard["panels"]}
+    startup_panel = panels_by_id.get(23, {})
+    startup_text = startup_panel.get("options", {}).get("text", {})
+    if startup_text.get("titleSize", 0) < 16 or startup_text.get("valueSize", 0) < 22:
+        raise SystemExit(f"{path}: startup panel text must remain readable at compact dashboard widths")
+
     daily_wan_panels = {
         72: "asus_router_wan_receive_bytes_total",
         73: "asus_router_wan_transmit_bytes_total",
