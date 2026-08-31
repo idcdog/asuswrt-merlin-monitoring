@@ -73,6 +73,34 @@ for path in Path("dashboards").glob("*.json"):
     wan_query_text = wan_query.get("query", "") if isinstance(wan_query, dict) else str(wan_query)
     if wan_variable.get("type") != "query" or "asus_router_wan_info" not in wan_query_text:
         raise SystemExit(f"{path}: wan_if must be auto-discovered from asus_router_wan_info")
+
+    panels_by_id = {panel.get("id"): panel for panel in dashboard["panels"]}
+    daily_wan_panels = {
+        72: "asus_router_wan_receive_bytes_total",
+        73: "asus_router_wan_transmit_bytes_total",
+    }
+    for panel_id, metric in daily_wan_panels.items():
+        panel = panels_by_id.get(panel_id, {})
+        expressions = [target.get("expr", "") for target in panel.get("targets", [])]
+        if panel.get("timeFrom") != "now/d" or not any(
+            metric in expression and "increase(" in expression and "$__range" in expression
+            for expression in expressions
+        ):
+            raise SystemExit(f"{path}: panel {panel_id} must calculate today's WAN counter increase")
+
+    daily_trend = panels_by_id.get(74, {})
+    trend_expressions = [target.get("expr", "") for target in daily_trend.get("targets", [])]
+    required_trend_metrics = {
+        "asus_router_wan_receive_bytes_total",
+        "asus_router_wan_transmit_bytes_total",
+    }
+    if daily_trend.get("timeFrom") != "30d/d" or not all(
+        any(metric in expression and "increase(" in expression and "[1d]" in expression
+            for expression in trend_expressions)
+        for metric in required_trend_metrics
+    ):
+        raise SystemExit(f"{path}: panel 74 must contain the 30-day daily WAN traffic trend")
+
     for panel in dashboard["panels"]:
         for target in panel.get("targets", []):
             expression = target.get("expr", "")

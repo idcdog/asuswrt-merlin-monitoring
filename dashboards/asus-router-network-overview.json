@@ -3477,6 +3477,202 @@
         "type": "prometheus",
         "uid": "victoriametrics"
       },
+      "description": "按浏览器本地时区统计当天 00:00 至当前时间的 WAN 接收字节增量。采集中断或路由器重启可能造成少量偏差。",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "fixed",
+            "fixedColor": "blue"
+          },
+          "unit": "bytes"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 12,
+        "x": 0,
+        "y": 116
+      },
+      "id": 72,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "textMode": "auto",
+        "wideLayout": true
+      },
+      "targets": [
+        {
+          "expr": "sum(increase(asus_router_wan_receive_bytes_total{job=\"asus_wifi_clients\",interface=\"$wan_if\"}[$__range]))",
+          "instant": true,
+          "legendFormat": "今日下载",
+          "refId": "A"
+        }
+      ],
+      "timeFrom": "now/d",
+      "title": "今日互联网下载量",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "victoriametrics"
+      },
+      "description": "按浏览器本地时区统计当天 00:00 至当前时间的 WAN 发送字节增量。采集中断或路由器重启可能造成少量偏差。",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "fixed",
+            "fixedColor": "orange"
+          },
+          "unit": "bytes"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 12,
+        "x": 12,
+        "y": 116
+      },
+      "id": 73,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "textMode": "auto",
+        "wideLayout": true
+      },
+      "targets": [
+        {
+          "expr": "sum(increase(asus_router_wan_transmit_bytes_total{job=\"asus_wifi_clients\",interface=\"$wan_if\"}[$__range]))",
+          "instant": true,
+          "legendFormat": "今日上传",
+          "refId": "A"
+        }
+      ],
+      "timeFrom": "now/d",
+      "title": "今日互联网上传量",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "victoriametrics"
+      },
+      "description": "每个点是前 24 小时 WAN 累计字节增量，按 1 天步长显示，适合观察趋势，不作为运营商计费依据。",
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "drawStyle": "bars",
+            "fillOpacity": 70,
+            "lineWidth": 1,
+            "pointSize": 3,
+            "showPoints": "never",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "normal"
+            }
+          },
+          "min": 0,
+          "unit": "bytes"
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byFrameRefID",
+              "options": "A"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "blue",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byFrameRefID",
+              "options": "B"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "orange",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 9,
+        "w": 24,
+        "x": 0,
+        "y": 120
+      },
+      "id": 74,
+      "options": {
+        "legend": {
+          "calcs": [
+            "lastNotNull",
+            "sum"
+          ],
+          "displayMode": "table",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
+      },
+      "targets": [
+        {
+          "expr": "sum(increase(asus_router_wan_receive_bytes_total{job=\"asus_wifi_clients\",interface=\"$wan_if\"}[1d]))",
+          "interval": "1d",
+          "legendFormat": "下载",
+          "refId": "A"
+        },
+        {
+          "expr": "sum(increase(asus_router_wan_transmit_bytes_total{job=\"asus_wifi_clients\",interface=\"$wan_if\"}[1d]))",
+          "interval": "1d",
+          "legendFormat": "上传",
+          "refId": "B"
+        }
+      ],
+      "timeFrom": "30d/d",
+      "title": "近 30 天每日互联网流量（估算）",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "victoriametrics"
+      },
       "description": "每个点是该完整小时内的 Traffic Analyzer 字节数换算出的小时平均速率。",
       "fieldConfig": {
         "defaults": {
@@ -3558,7 +3754,7 @@
         "h": 9,
         "w": 16,
         "x": 0,
-        "y": 116
+        "y": 129
       },
       "id": 18,
       "options": {
@@ -3612,7 +3808,7 @@
         "h": 9,
         "w": 8,
         "x": 16,
-        "y": 116
+        "y": 129
       },
       "id": 19,
       "options": {
@@ -3654,7 +3850,7 @@
         "h": 3,
         "w": 24,
         "x": 0,
-        "y": 125
+        "y": 138
       },
       "id": 20,
       "options": {
@@ -3676,7 +3872,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 128
+        "y": 141
       },
       "id": 61,
       "panels": [],
@@ -3719,7 +3915,7 @@
         "h": 4,
         "w": 6,
         "x": 0,
-        "y": 129
+        "y": 142
       },
       "id": 64,
       "options": {
@@ -3793,7 +3989,7 @@
         "h": 4,
         "w": 6,
         "x": 6,
-        "y": 129
+        "y": 142
       },
       "id": 65,
       "options": {
@@ -3867,7 +4063,7 @@
         "h": 4,
         "w": 6,
         "x": 12,
-        "y": 129
+        "y": 142
       },
       "id": 66,
       "options": {
@@ -3941,7 +4137,7 @@
         "h": 4,
         "w": 6,
         "x": 18,
-        "y": 129
+        "y": 142
       },
       "id": 67,
       "options": {
@@ -3994,7 +4190,7 @@
         "h": 9,
         "w": 12,
         "x": 0,
-        "y": 133
+        "y": 146
       },
       "id": 68,
       "options": {
@@ -4046,7 +4242,7 @@
         "h": 9,
         "w": 12,
         "x": 12,
-        "y": 133
+        "y": 146
       },
       "id": 69,
       "options": {
@@ -4185,7 +4381,7 @@
   "timezone": "browser",
   "title": "华硕路由器网络总览",
   "uid": "asus-wifi-clients",
-  "version": 11,
+  "version": 12,
   "weekStart": "",
   "description": "Asuswrt-Merlin 路由器网络运行摘要、设备活动、系统健康、互联网质量、无线质量与历史流量。"
 }
